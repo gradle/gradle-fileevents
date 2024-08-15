@@ -97,13 +97,13 @@ public class FileEvents {
 
     private static String determineLibraryName(Platform platform) {
         if (platform.isLinux()) {
-            return "libnative-platform-file-events.so";
+            return "file-events.so";
         }
         if (platform.isMacOs()) {
-            return "libnative-platform-file-events.dylib";
+            return "file-events.dylib";
         }
         if (platform.isWindows()) {
-            return "native-platform-file-events.dll";
+            return "file-events.dll";
         }
         throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
     }

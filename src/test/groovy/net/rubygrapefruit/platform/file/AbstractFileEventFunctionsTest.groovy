@@ -25,16 +25,11 @@ import net.rubygrapefruit.platform.internal.jni.LinuxFileEventFunctions
 import net.rubygrapefruit.platform.internal.jni.NativeLogger
 import net.rubygrapefruit.platform.internal.jni.OsxFileEventFunctions
 import net.rubygrapefruit.platform.internal.jni.WindowsFileEventFunctions
-import net.rubygrapefruit.platform.testfixture.JniChecksEnabled
 import net.rubygrapefruit.platform.testfixture.JulLogging
-import org.junit.Assume
-import org.junit.Rule
-import org.junit.experimental.categories.Category
-import org.junit.rules.TemporaryFolder
-import org.junit.rules.TestName
 import org.spockframework.util.Assert
 import org.spockframework.util.Nullable
 import spock.lang.Specification
+import spock.lang.TempDir
 import spock.lang.Timeout
 
 import java.util.concurrent.BlockingQueue
@@ -47,22 +42,19 @@ import java.util.logging.Logger
 import java.util.regex.Pattern
 
 import static java.util.concurrent.TimeUnit.SECONDS
-import static java.util.logging.Level.CONFIG
 import static net.rubygrapefruit.platform.file.AbstractFileEventFunctionsTest.EventStatus.EXPECTED
 import static net.rubygrapefruit.platform.file.AbstractFileEventFunctionsTest.EventStatus.UNEXPECTED
 
 @Timeout(value = 10, unit = SECONDS)
-@Category(JniChecksEnabled)
 abstract class AbstractFileEventFunctionsTest extends Specification {
 
     public static final Logger LOGGER = Logger.getLogger(AbstractFileEventFunctionsTest.name)
 
-    @Rule
-    TemporaryFolder tmpDir = new TemporaryFolder(tmpDir())
-    @Rule
-    TestName testName
-    @Rule
-    JulLogging logging = new JulLogging(NativeLogger, CONFIG)
+    private JulLogging logging = new JulLogging(NativeLogger, Level.CONFIG)
+
+    @TempDir
+    File tmpDir
+    String testName
 
     def eventQueue = newEventQueue()
     File testDir
@@ -75,25 +67,20 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
     // We could do this with @Delegate, but Groovy doesn't let us :(
     protected FileWatcherFixture watcherFixture
 
-    private static File tmpDir() {
-        File tmpFile = new File(System.getProperty("test.directory")).absoluteFile
-        if (!tmpFile.directory) {
-            assert tmpFile.mkdirs()
-        }
-        return tmpFile
-    }
-
     def setup() {
+        logging.beforeTestExecution()
+        testName = specificationContext.currentIteration.name
         uncaughtFailureOnThread = []
         expectedLogMessages = [:]
 
-        def isJniTest = Boolean.getBoolean("testJni")
-        def isAmazonLinux = System.getProperty("agentName", "unknown").contains("Amazon")
-        Assume.assumeFalse("testJni doesn't seem to work on Amazon Linux", isJniTest && isAmazonLinux)
+//        def isJniTest = Boolean.getBoolean("testJni")
+//        def isAmazonLinux = System.getProperty("agentName", "unknown").contains("Amazon")
+//        assumeFalse("testJni doesn't seem to work on Amazon Linux", isJniTest && isAmazonLinux)
 
         watcherFixture = FileWatcherFixture.of(Platform.current())
-        LOGGER.info(">>> Running '${testName.methodName}'")
-        testDir = tmpDir.newFolder(testName.methodName).canonicalFile
+        LOGGER.info(">>> Running '${testName}'")
+        testDir = new File(tmpDir, testName)
+        assert testDir.mkdirs()
         rootDir = new File(testDir, "root")
         assert rootDir.mkdirs()
         uncaughtFailureOnThread = []
@@ -101,6 +88,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
     }
 
     def cleanup() {
+        logging.afterTestExecution()
         def isJniTest = Boolean.getBoolean("testJni")
         def isAmazonLinux = System.getProperty("agentName", "unknown").contains("Amazon")
         if (isJniTest && isAmazonLinux) {
@@ -108,7 +96,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
         }
 
         shutdownWatcher()
-        LOGGER.info("<<< Finished '${testName.methodName}'")
+        LOGGER.info("<<< Finished '${testName}'")
 
         uncaughtFailureOnThread.each {
             it.printStackTrace()
@@ -212,7 +200,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
                 int bufferSizeInKb
                 if (preventOverflow) {
                     bufferSizeInKb = 16384
-                    AbstractFileEventFunctionsTest.LOGGER.info("Using $bufferSizeInKb kByte buffer to prevent overflow events");
+                    LOGGER.info("Using $bufferSizeInKb kByte buffer to prevent overflow events")
                 } else {
                     bufferSizeInKb = 16
                 }
@@ -563,7 +551,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
     }
 
     protected ExpectedEvent failure(Class<? extends Throwable> type = Exception, String message) {
-        failure(type, Pattern.quote(message))
+        failure(type, Pattern.compile(Pattern.quote(message)))
     }
 
     protected ExpectedEvent failure(Class<? extends Throwable> type = Exception, Pattern message) {

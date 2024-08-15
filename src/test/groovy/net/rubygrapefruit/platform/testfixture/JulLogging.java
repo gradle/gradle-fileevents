@@ -1,8 +1,5 @@
 package net.rubygrapefruit.platform.testfixture;
 
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -14,7 +11,7 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-public class JulLogging extends TestWatcher {
+public class JulLogging {
 
     private final Logger logger;
     private final Level level;
@@ -40,8 +37,7 @@ public class JulLogging extends TestWatcher {
         this.level = level;
     }
 
-    @Override
-    protected void starting(Description description) {
+    public void beforeTestExecution() throws Exception {
         recorder = new RecordingHandler();
         logger.addHandler(recorder);
 
@@ -49,8 +45,7 @@ public class JulLogging extends TestWatcher {
         logger.setLevel(level);
     }
 
-    @Override
-    protected void finished(Description description) {
+    public void afterTestExecution() throws Exception {
         logger.removeHandler(recorder);
         logger.setLevel(oldLevel);
     }

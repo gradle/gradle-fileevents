@@ -19,7 +19,6 @@ import net.rubygrapefruit.platform.NativeException
 import net.rubygrapefruit.platform.internal.Platform
 import net.rubygrapefruit.platform.internal.jni.AbstractFileEventFunctions
 import net.rubygrapefruit.platform.internal.jni.NativeLogger
-import org.junit.Assume
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 import spock.lang.Unroll
@@ -137,7 +136,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         then:
         // Windows reports the file as modified before removing it
         expectEvents byPlatform(
-            (WINDOWS):   [change(MODIFIED, removedFile), change(REMOVED, removedFile)],
+            (WINDOWS): [change(MODIFIED, removedFile), change(REMOVED, removedFile)],
             (OTHERWISE): [change(REMOVED, removedFile)]
         )
     }
@@ -157,7 +156,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         then:
         // Windows reports the file as modified before removing it
         expectEvents byPlatform(
-            (WINDOWS):   [change(MODIFIED, removedFile), change(REMOVED, removedFile)],
+            (WINDOWS): [change(MODIFIED, removedFile), change(REMOVED, removedFile)],
             (OTHERWISE): [change(REMOVED, removedFile)]
         )
     }
@@ -209,7 +208,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
 
         then:
         expectEvents byPlatform(
-            (WINDOWS):   [change(MODIFIED, removedFile), change(REMOVED, removedFile), change(REMOVED, removedSubSubDir), change(REMOVED, removedSubDir), change(REMOVED, removedDir)],
+            (WINDOWS): [change(MODIFIED, removedFile), change(REMOVED, removedFile), change(REMOVED, removedSubSubDir), change(REMOVED, removedSubDir), change(REMOVED, removedDir)],
             (OTHERWISE): [change(REMOVED, removedFile), change(REMOVED, removedSubSubDir), change(REMOVED, removedSubDir), change(REMOVED, removedDir)]
         )
     }
@@ -684,8 +683,8 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         where:
         type             | path                     | supported
         "ASCII-only"     | "directory"              | true
-        "Chinese"        | "输入文件"                   | true
-        "four-byte UTF8" | "𠜎𠜱𠝹𠱓"               | true
+        "Chinese"        | "输入文件"               | true
+        "four-byte UTF8" | "𠜎𠜱𠝹𠱓"                   | true
         "Hungarian"      | "Dezső"                  | true
         "space"          | "test directory"         | true
         "zwnj"           | "test\u200cdirectory"    | true
