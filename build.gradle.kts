@@ -1,50 +1,53 @@
-import java.io.ByteArrayOutputStream
-
 plugins {
     id("groovy")
     id("java-library")
     id("cpp")
+    id("gradlebuild.git-version")
 }
 
-// nativeVersion {
-//     versionClassPackageName = "net.rubygrapefruit.platform.internal.jni"
-//     versionClassName = "FileEventsVersion"
-// }
+abstract class GenerateVersions : DefaultTask() {
+    @get:Input
+    abstract val version: Property<String>
+    @get:OutputDirectory
+    abstract val javaOutputDir: DirectoryProperty
+    @get:OutputDirectory
+    abstract val cOutputDir: DirectoryProperty
 
-val generateVersionFile by tasks.registering {
-    val outputDir = layout.buildDirectory.dir("generated/sources/version")
-    val outputFile = outputDir.map { it.file("net/rubygrapefruit/platform/internal/jni/FileEventsVersion.java") }
+    @TaskAction
+    fun execute() {
+        val javaFile =
+            javaOutputDir.file("net/rubygrapefruit/platform/internal/jni/FileEventsVersion.java").get().asFile
+        javaFile.parentFile.mkdirs()
+        javaFile.writeText(
+            """
+            package net.rubygrapefruit.platform.internal.jni;
 
-    outputs.dir(outputDir)
-
-    doLast {
-        val version = ByteArrayOutputStream().use { outputStream ->
-            exec {
-                commandLine("git", "describe", "--tags")
-                standardOutput = outputStream
+            public class FileEventsVersion {
+                public static final String VERSION = "${version.get()}";
             }
-            outputStream.toString().trim()
-        }
+            """.trimIndent()
+        )
 
-        outputFile.get().asFile.apply {
-            parentFile.mkdirs()
-            writeText(
-                """
-                package net.rubygrapefruit.platform.internal.jni;
-
-                public class FileEventsVersion {
-                    public static final String VERSION = "$version";
-                }
-                """.trimIndent()
-            )
-        }
+        val cFile = cOutputDir.file("file_events_version.h").get().asFile
+        cFile.parentFile.mkdirs()
+        cFile.writeText(
+            """
+            #define FILE_EVENTS_VERSION "${version.get()}"
+            """.trimIndent()
+        )
     }
+}
+
+val generateVersionFile by tasks.registering(GenerateVersions::class) {
+    version = git.version
+    javaOutputDir = layout.buildDirectory.dir("generated/sources/java")
+    cOutputDir = layout.buildDirectory.dir("generated/sources/headers/version")
 }
 
 sourceSets {
     main {
         java {
-            srcDirs(generateVersionFile.map { it.outputs.files.first() })
+            srcDirs(generateVersionFile.flatMap { it.javaOutputDir })
         }
     }
 }
@@ -77,6 +80,22 @@ tasks.javadoc {
     exclude("**/internal/**")
 }
 
-tasks.withType<JavaCompile> {
-    options.headerOutputDirectory = layout.buildDirectory.dir("generated/sources/headers")
+val compileJava by tasks.named("compileJava", JavaCompile::class) {
+    options.headerOutputDirectory = layout.buildDirectory.dir("generated/sources/headers/java")
+}
+
+val zigBuild by tasks.registering {
+    group = "build"
+    description = "Build the native library using Zig"
+
+    val outputDir = layout.buildDirectory.dir("zig")
+    inputs.files(compileJava)
+    inputs.files(generateVersionFile)
+    inputs.files(fileTree("src/main/zig"))
+    outputs.dir(outputDir)
+    doLast {
+        exec {
+            commandLine("zig", "build", "build", "--prefix", outputDir.get().asFile.absolutePath)
+        }
+    }
 }

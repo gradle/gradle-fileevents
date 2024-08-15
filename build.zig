@@ -12,8 +12,8 @@ pub fn build(b: *std.Build) void {
     const java_darwin_include_path = std.fmt.allocPrint(b.allocator, "{s}/include/darwin", .{java_home}) catch unreachable;
 
     // Add include directories
-    lib.addIncludePath(b.path("build/generated/sources/headers/java/main"));
-    lib.addIncludePath(b.path("build/generated/version/header"));
+    lib.addIncludePath(b.path("build/generated/sources/headers/java"));
+    lib.addIncludePath(b.path("build/generated/sources/headers/version"));
     lib.addIncludePath(b.path("src/file-events/headers"));
     lib.addSystemIncludePath(.{ .cwd_relative = java_include_path });
     lib.addSystemIncludePath(.{ .cwd_relative = java_darwin_include_path });
