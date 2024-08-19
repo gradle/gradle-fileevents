@@ -1,4 +1,4 @@
-import gradlebuild.ZigBuild
+import gradlebuild.GenerateVersions
 
 plugins {
     id("groovy")
@@ -6,53 +6,6 @@ plugins {
     id("cpp")
     id("gradlebuild.git-version")
     id("gradlebuild.zig")
-}
-
-abstract class GenerateVersions : DefaultTask() {
-    @get:Input
-    abstract val version: Property<String>
-    @get:OutputDirectory
-    abstract val javaOutputDir: DirectoryProperty
-    @get:OutputDirectory
-    abstract val cOutputDir: DirectoryProperty
-
-    @TaskAction
-    fun execute() {
-        val javaFile =
-            javaOutputDir.file("net/rubygrapefruit/platform/internal/jni/FileEventsVersion.java").get().asFile
-        javaFile.parentFile.mkdirs()
-        javaFile.writeText(
-            """
-            package net.rubygrapefruit.platform.internal.jni;
-
-            public class FileEventsVersion {
-                public static final String VERSION = "${version.get()}";
-            }
-            """.trimIndent()
-        )
-
-        val cFile = cOutputDir.file("file_events_version.h").get().asFile
-        cFile.parentFile.mkdirs()
-        cFile.writeText(
-            """
-            #define FILE_EVENTS_VERSION "${version.get()}"
-            """.trimIndent()
-        )
-    }
-}
-
-val generateVersionFile by tasks.registering(GenerateVersions::class) {
-    version = git.version
-    javaOutputDir = layout.buildDirectory.dir("generated/sources/java")
-    cOutputDir = layout.buildDirectory.dir("generated/sources/headers/version")
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs(generateVersionFile.flatMap { it.javaOutputDir })
-        }
-    }
 }
 
 dependencies {
@@ -87,6 +40,14 @@ val compileJava by tasks.named("compileJava", JavaCompile::class) {
     options.headerOutputDirectory = layout.buildDirectory.dir("generated/sources/headers/java")
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs(git.javaOutputDir)
+        }
+    }
+}
+
 zig {
     targets {
         create("x86_64-linux-gnu")
@@ -104,6 +65,6 @@ zig {
 
 zig.targets.configureEach {
     includeDirectories.from(compileJava.options.headerOutputDirectory)
-    includeDirectories.from(generateVersionFile.flatMap { it.cOutputDir })
+    includeDirectories.from(git.headerOutputDir)
     optimizer = "ReleaseSmall"
 }
