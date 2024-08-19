@@ -64,7 +64,7 @@ pub fn build(b: *std.Build) void {
     }
 
     // lib.verbose_cc = true;
-    lib.verbose_link = true;
+    // lib.verbose_link = true;
 
     const install = b.addInstallArtifact(lib, .{});
 
