@@ -1,8 +1,11 @@
+import gradlebuild.ZigBuild
+
 plugins {
     id("groovy")
     id("java-library")
     id("cpp")
     id("gradlebuild.git-version")
+    id("gradlebuild.zig")
 }
 
 abstract class GenerateVersions : DefaultTask() {
@@ -84,18 +87,11 @@ val compileJava by tasks.named("compileJava", JavaCompile::class) {
     options.headerOutputDirectory = layout.buildDirectory.dir("generated/sources/headers/java")
 }
 
-val zigBuild by tasks.registering {
-    group = "build"
-    description = "Build the native library using Zig"
+zig {
+    targets = listOf("x86_64-linux-gnu")
+}
 
-    val outputDir = layout.buildDirectory.dir("zig")
-    inputs.files(compileJava)
-    inputs.files(generateVersionFile)
-    inputs.files(fileTree("src/main/zig"))
-    outputs.dir(outputDir)
-    doLast {
-        exec {
-            commandLine("zig", "build", "build", "--prefix", outputDir.get().asFile.absolutePath)
-        }
-    }
+tasks.withType<ZigBuild>().configureEach {
+    includeDirectories.from(compileJava.options.headerOutputDirectory)
+    includeDirectories.from(generateVersionFile.flatMap { it.cOutputDir })
 }
