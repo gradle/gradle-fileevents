@@ -50,7 +50,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
 
     public static final Logger LOGGER = Logger.getLogger(AbstractFileEventFunctionsTest.name)
 
-    private JulLogging logging = new JulLogging(NativeLogger, Level.CONFIG)
+    JulLogging logging = new JulLogging(NativeLogger, Level.CONFIG)
 
     @TempDir
     File tmpDir
@@ -79,7 +79,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
 
         watcherFixture = FileWatcherFixture.of(Platform.current())
         LOGGER.info(">>> Running '${testName}'")
-        testDir = new File(tmpDir, testName)
+        testDir = new File(tmpDir.getCanonicalFile(), testName)
         assert testDir.mkdirs()
         rootDir = new File(testDir, "root")
         assert rootDir.mkdirs()

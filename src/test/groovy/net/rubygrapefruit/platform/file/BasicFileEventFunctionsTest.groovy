@@ -19,6 +19,7 @@ import net.rubygrapefruit.platform.NativeException
 import net.rubygrapefruit.platform.internal.Platform
 import net.rubygrapefruit.platform.internal.jni.AbstractFileEventFunctions
 import net.rubygrapefruit.platform.internal.jni.NativeLogger
+import org.junit.jupiter.api.Assumptions
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 import spock.lang.Unroll
@@ -666,7 +667,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
     }
 
     def "can watch directory with #type characters"() {
-        Assume.assumeTrue(supported as boolean)
+        Assumptions.assumeTrue(supported as boolean)
 
         given:
         def subDir = new File(rootDir, path)
