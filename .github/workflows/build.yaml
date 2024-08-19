@@ -26,10 +26,14 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
 
       - name: Build
         run: |
-          ./gradlew build --scan
+          ./gradlew build
 
       - name: Upload build reports
         uses: actions/upload-artifact@v4
