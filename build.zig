@@ -66,7 +66,9 @@ pub fn build(b: *std.Build) void {
     // lib.verbose_cc = true;
     // lib.verbose_link = true;
 
-    const install = b.addInstallArtifact(lib, .{});
+    const install = b.addInstallArtifact(lib, .{
+        .dest_dir = .{ .override = .{ .custom = "out" } },
+    });
 
     // Ensure the library is built
     const build_step = b.step("build", "Build the file-events shared library");

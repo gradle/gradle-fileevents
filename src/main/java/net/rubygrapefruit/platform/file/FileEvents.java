@@ -4,7 +4,7 @@ import net.rubygrapefruit.platform.NativeException;
 import net.rubygrapefruit.platform.NativeIntegration;
 import net.rubygrapefruit.platform.NativeIntegrationUnavailableException;
 import net.rubygrapefruit.platform.ThreadSafe;
-import net.rubygrapefruit.platform.internal.NativeLibraryLoader;
+import net.rubygrapefruit.platform.internal.LibraryDef;
 import net.rubygrapefruit.platform.internal.NativeLibraryLocator;
 import net.rubygrapefruit.platform.internal.Platform;
 import net.rubygrapefruit.platform.internal.jni.AbstractNativeFileEventFunctions;
@@ -19,35 +19,54 @@ import java.util.Map;
 
 @ThreadSafe
 public class FileEvents {
-    private static NativeLibraryLoader loader;
-    private static final Map<Class<?>, Object> integrations = new HashMap<Class<?>, Object>();
-
-    private FileEvents() {
-    }
+    private static final Map<Class<?>, Object> integrations = new HashMap<>();
 
     @ThreadSafe
-    static public void init(File extractDir) throws NativeIntegrationUnavailableException, NativeException {
+    static public void init(File extractDir) throws NativeException {
         synchronized (FileEvents.class) {
-            if (loader == null) {
-                Platform platform = Platform.current();
-                try {
-                    loader = new NativeLibraryLoader(platform, new NativeLibraryLocator(extractDir, FileEventsVersion.VERSION));
-                    loader.load(determineLibraryName(platform), platform.getLibraryVariants());
-                    String nativeVersion = AbstractNativeFileEventFunctions.getVersion();
-                    if (!nativeVersion.equals(FileEventsVersion.VERSION)) {
-                        throw new NativeException(String.format(
-                            "Unexpected native file events library version loaded. Expected %s, was %s.",
-                            nativeVersion,
-                            FileEventsVersion.VERSION
-                        ));
-                    }
-                } catch (NativeException e) {
-                    throw e;
-                } catch (Throwable t) {
-                    throw new NativeException("Failed to initialise native integration.", t);
+            Platform platform = Platform.current();
+            String platformName = getPlatformName(platform);
+            try {
+                NativeLibraryLocator loader = new NativeLibraryLocator(extractDir, FileEventsVersion.VERSION);
+                File library = loader.find(new LibraryDef(determineLibraryName(platform), platformName));
+                System.load(library.getCanonicalPath());
+
+                String nativeVersion = AbstractNativeFileEventFunctions.getVersion();
+                if (!nativeVersion.equals(FileEventsVersion.VERSION)) {
+                    throw new NativeException(String.format(
+                        "Unexpected native file events library version loaded. Expected %s, was %s.",
+                        nativeVersion,
+                        FileEventsVersion.VERSION
+                    ));
                 }
+            } catch (NativeException e) {
+                throw e;
+            } catch (Throwable t) {
+                throw new NativeException("Failed to initialise native integration.", t);
             }
         }
+    }
+
+    private static String getPlatformName(Platform platform) {
+        switch (platform.getId()) {
+            case "windows-i386":
+                return "i386-windows-gnu";
+            case "windows-amd64":
+                return "x86_64-windows-gnu";
+            case "windows-aarch64":
+                return "aarch64-windows-gnu";
+            case "linux-i386":
+                return "i386-linux-gnu";
+            case "linux-amd64":
+                return "x86_64-linux-gnu";
+            case "linux-aarch64":
+                return "aarch64-linux-gnu";
+            case "osx-amd64":
+                return "x86_64-macos";
+            case "osx-aarch64":
+                return "aarch64-macos";
+        }
+        throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
     }
 
     /**
@@ -55,8 +74,8 @@ public class FileEvents {
      *
      * @return The native integration. Never returns null.
      * @throws NativeIntegrationUnavailableException When the given native integration is not available on the current
-     * machine.
-     * @throws NativeException On failure to load the native integration.
+     *                                               machine.
+     * @throws NativeException                       On failure to load the native integration.
      */
     @ThreadSafe
     public static <T extends NativeIntegration> T get(Class<T> type)
@@ -97,13 +116,13 @@ public class FileEvents {
 
     private static String determineLibraryName(Platform platform) {
         if (platform.isLinux()) {
-            return "file-events.so";
+            return "libfile-events.so";
         }
         if (platform.isMacOs()) {
-            return "file-events.dylib";
+            return "libfile-events.dylib";
         }
         if (platform.isWindows()) {
-            return "file-events.dll";
+            return "libfile-events.dll";
         }
         throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
     }

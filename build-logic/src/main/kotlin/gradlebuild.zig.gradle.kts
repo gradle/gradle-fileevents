@@ -1,13 +1,6 @@
 import gradlebuild.ZigBuild
 import java.util.*
 
-tasks.withType<ZigBuild>().configureEach {
-    workingDirectory = layout.projectDirectory
-    target.convention("native")
-    outputDirectory = layout.buildDirectory.dir(target.map { "zig/$it" })
-    cacheDirectory = layout.buildDirectory.dir(".zig-cache")
-}
-
 interface TargetPlatform : Named {
     val includeDirectories: ConfigurableFileCollection
     val libcFile: RegularFileProperty
@@ -15,6 +8,7 @@ interface TargetPlatform : Named {
 }
 
 interface ZigExtension {
+    val outputDir: DirectoryProperty
     val targets: NamedDomainObjectContainer<TargetPlatform>
 }
 
@@ -29,6 +23,13 @@ fun String.kebabToCamelCase() = split("-").joinToString("", transform = {
 val zigBuild by tasks.registering {
     group = "build"
     description = "Builds the project with Zig"
+}
+
+tasks.withType<ZigBuild>().configureEach {
+    workingDirectory = layout.projectDirectory
+    target.convention("native")
+    outputDirectory = extension.outputDir.dir(target)
+    cacheDirectory = layout.buildDirectory.dir(".zig-cache")
 }
 
 afterEvaluate {

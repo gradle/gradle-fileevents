@@ -1,4 +1,5 @@
 import gradlebuild.GenerateVersions
+import gradlebuild.ZigBuild
 
 plugins {
     id("groovy")
@@ -49,6 +50,7 @@ sourceSets {
 }
 
 zig {
+    outputDir = layout.buildDirectory.dir("zig")
     targets {
         create("x86_64-linux-gnu")
         create("aarch64-linux-gnu")
@@ -67,4 +69,15 @@ zig.targets.configureEach {
     includeDirectories.from(compileJava.options.headerOutputDirectory)
     includeDirectories.from(git.headerOutputDir)
     optimizer = "ReleaseSmall"
+}
+
+tasks.withType<ZigBuild>().all {
+    val zigBuild = this
+    tasks.named<ProcessResources>("processResources") {
+        into("net/rubygrapefruit/platform") {
+            into(zigBuild.target) {
+                from(zigBuild.outputDirectory.dir("out"))
+            }
+        }
+    }
 }
