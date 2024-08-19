@@ -88,10 +88,22 @@ val compileJava by tasks.named("compileJava", JavaCompile::class) {
 }
 
 zig {
-    targets = listOf("x86_64-linux-gnu")
+    targets {
+        create("x86_64-linux-gnu")
+        create("aarch64-linux-gnu")
+        create("x86_64-windows-gnu")
+        create("aarch64-windows-gnu")
+        create("x86_64-macos") {
+            libcFile = layout.projectDirectory.file("libc-macos.txt")
+        }
+        create("aarch64-macos") {
+            libcFile = layout.projectDirectory.file("libc-macos.txt")
+        }
+    }
 }
 
-tasks.withType<ZigBuild>().configureEach {
+zig.targets.configureEach {
     includeDirectories.from(compileJava.options.headerOutputDirectory)
     includeDirectories.from(generateVersionFile.flatMap { it.cOutputDir })
+    optimizer = "ReleaseSmall"
 }

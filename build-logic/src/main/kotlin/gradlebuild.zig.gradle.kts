@@ -3,12 +3,19 @@ import java.util.*
 
 tasks.withType<ZigBuild>().configureEach {
     workingDirectory = layout.projectDirectory
-    outputDirectory = layout.buildDirectory.dir("zig")
+    target.convention("native")
+    outputDirectory = layout.buildDirectory.dir(target.map { "zig/$it" })
     cacheDirectory = layout.buildDirectory.dir(".zig-cache")
 }
 
+interface TargetPlatform : Named {
+    val includeDirectories: ConfigurableFileCollection
+    val libcFile: RegularFileProperty
+    val optimizer: Property<String>
+}
+
 interface ZigExtension {
-    val targets: SetProperty<String>
+    val targets: NamedDomainObjectContainer<TargetPlatform>
 }
 
 val extension = project.extensions.create<ZigExtension>("zig")
@@ -25,13 +32,17 @@ val zigBuild by tasks.registering {
 }
 
 afterEvaluate {
-    extension.targets.get().forEach { target ->
-        val task = tasks.register<ZigBuild>("zigBuild${target.kebabToCamelCase()}") {
+    extension.targets.configureEach {
+        val target = this
+        val task = tasks.register<ZigBuild>("zigBuild${target.name.kebabToCamelCase()}") {
             group = "zig"
             description = "Builds the project with Zig for $target"
-            if (target != "native") {
-                this.target = target
+            if (target.name != "native") {
+                this.target = target.name
             }
+            includeDirectories.from(target.includeDirectories)
+            libcFile = target.libcFile
+            optimizer = target.optimizer
         }
         zigBuild.configure { dependsOn(task) }
     }
