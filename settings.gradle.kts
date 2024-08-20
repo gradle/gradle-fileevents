@@ -15,6 +15,13 @@ plugins {
 //    id("io.github.gradle.gradle-enterprise-conventions-plugin").version("0.10.1")
 }
 
+develocity {
+    buildScan {
+        termsOfUseUrl = "https://gradle.com/terms-of-service"
+        termsOfUseAgree = "yes"
+    }
+}
+
 rootProject.name = "file-events"
 
 enableFeaturePreview("GROOVY_COMPILATION_AVOIDANCE")
