@@ -42,15 +42,16 @@ jobs:
           path: build/libs/file-events.jar
 
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04, ubuntu-latest, macos-13, macos-latest, windows-2019, windows-latest ]
+    runs-on: ${{ matrix.os }}
 
     needs: build
 
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -71,10 +72,6 @@ jobs:
           name: library
           path: build/remote/
 
-      - run: |
-          ls -lR build/remote
-          unzip -l build/remote/file-events.jar
-
       - name: Test
         run: |
           ./gradlew externalTest
@@ -83,5 +80,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: build-reports
+          name: test-reports-${{ matrix.os }}
           path: build/reports/
