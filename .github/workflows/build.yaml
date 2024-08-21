@@ -69,7 +69,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: library
-          path: build/remote/file-events.jar
+          path: build/remote/
 
       - run: |
           ls -lR build/remote
