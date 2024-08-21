@@ -26,7 +26,7 @@ java {
 }
 
 // Define a custom configuration that only includes the test sources
-val testOnlyImplementation by configurations.creating {
+val testOnlyClasspath by configurations.creating {
     // This configuration extends from 'testImplementation'
     extendsFrom(configurations.testImplementation.get())
 
@@ -59,7 +59,7 @@ testing {
             // Configure the dependencies
             dependencies {
                 // Use the custom configuration that includes only the test dependencies
-                implementation(testOnlyImplementation)
+                implementation(testOnlyClasspath)
 
                 // Add the external JAR as a dependency
                 implementation(files(layout.buildDirectory.file("remote/file-events.jar")))

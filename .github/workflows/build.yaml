@@ -73,6 +73,7 @@ jobs:
 
       - run: |
           ls -lR build/remote
+          unzip -l build/remote/file-events.jar
 
       - name: Test
         run: |
