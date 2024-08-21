@@ -29,6 +29,9 @@ public class FileEvents {
             try {
                 NativeLibraryLocator loader = new NativeLibraryLocator(extractDir, FileEventsVersion.VERSION);
                 File library = loader.find(new LibraryDef(determineLibraryName(platform), platformName));
+                if (library == null) {
+                    throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
+                }
                 System.load(library.getCanonicalPath());
 
                 String nativeVersion = AbstractNativeFileEventFunctions.getVersion();
@@ -48,25 +51,18 @@ public class FileEvents {
     }
 
     private static String getPlatformName(Platform platform) {
-        switch (platform.getId()) {
-            case "windows-i386":
-                return "i386-windows-gnu";
-            case "windows-amd64":
-                return "x86_64-windows-gnu";
-            case "windows-aarch64":
-                return "aarch64-windows-gnu";
-            case "linux-i386":
-                return "i386-linux-gnu";
-            case "linux-amd64":
-                return "x86_64-linux-gnu";
-            case "linux-aarch64":
-                return "aarch64-linux-gnu";
-            case "osx-amd64":
-                return "x86_64-macos";
-            case "osx-aarch64":
-                return "aarch64-macos";
-        }
-        throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
+        return switch (platform.getId()) {
+            case "windows-i386" -> "i386-windows-gnu";
+            case "windows-amd64" -> "x86_64-windows-gnu";
+            case "windows-aarch64" -> "aarch64-windows-gnu";
+            case "linux-i386" -> "i386-linux-gnu";
+            case "linux-amd64" -> "x86_64-linux-gnu";
+            case "linux-aarch64" -> "aarch64-linux-gnu";
+            case "osx-amd64" -> "x86_64-macos";
+            case "osx-aarch64" -> "aarch64-macos";
+            default ->
+                throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
+        };
     }
 
     /**
@@ -122,7 +118,7 @@ public class FileEvents {
             return "libfile-events.dylib";
         }
         if (platform.isWindows()) {
-            return "libfile-events.dll";
+            return "file-events.dll";
         }
         throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
     }
