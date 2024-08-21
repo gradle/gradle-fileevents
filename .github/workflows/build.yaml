@@ -33,7 +33,50 @@ jobs:
 
       - name: Build
         run: |
-          ./gradlew build
+          ./gradlew assemble
+
+      - name: Upload library
+        uses: actions/upload-artifact@v4
+        with:
+          name: library
+          path: build/libs/file-events.jar
+
+  test:
+    runs-on: ubuntu-latest
+
+    needs: build
+
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: Download library
+        uses: actions/download-artifact@v4
+        with:
+          name: library
+          path: build/remote/file-events.jar
+
+      - run: |
+          ls -lR build/remote
+
+      - name: Test
+        run: |
+          ./gradlew externalTest
 
       - name: Upload build reports
         uses: actions/upload-artifact@v4

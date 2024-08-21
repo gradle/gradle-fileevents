@@ -1,4 +1,5 @@
-import gradlebuild.GenerateVersions
+@file:Suppress("UnstableApiUsage")
+
 import gradlebuild.ZigBuild
 
 plugins {
@@ -8,6 +9,8 @@ plugins {
     id("gradlebuild.git-version")
     id("gradlebuild.zig")
 }
+
+group = "org.gradle.file-events"
 
 dependencies {
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
@@ -22,12 +25,45 @@ java {
     }
 }
 
+// Define a custom configuration that only includes the test sources
+val testOnlyImplementation by configurations.creating {
+    // This configuration extends from 'testImplementation'
+    extendsFrom(configurations.testImplementation.get())
+
+    // Exclude the main source set classes
+    exclude(group = project.group.toString(), module = project.name)
+}
+
 testing {
     suites {
         // Configure the built-in test suite
         val test by getting(JvmTestSuite::class) {
             // Use Spock test framework
             useSpock("2.2-groovy-3.0")
+        }
+
+        // Test suite for running against a remotely built artifact
+        val externalTest by registering(JvmTestSuite::class) {
+            useSpock("2.2-groovy-3.0")
+
+            // Use the same source directories as the main test suite
+            sources {
+                groovy {
+                    setSrcDirs(listOf("src/test/groovy"))
+                }
+                resources {
+                    setSrcDirs(listOf("src/test/resources"))
+                }
+            }
+
+            // Configure the dependencies
+            dependencies {
+                // Use the custom configuration that includes only the test dependencies
+                implementation(testOnlyImplementation)
+
+                // Add the external JAR as a dependency
+                implementation(files(layout.buildDirectory.file("remote/file-events.jar")))
+            }
         }
     }
 }
