@@ -766,6 +766,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         ex.message == "Starting the watcher timed out"
     }
 
+    @IgnoreIf(value = { Platform.current().windows }, reason = "Windows 2019 Server does not handle this")
     def "can detect events in directory removed then re-added"() {
         given:
         def watchedDir = new File(rootDir, "watched")
