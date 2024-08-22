@@ -16,6 +16,8 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.process.ExecOperations
 import javax.inject.Inject
 
@@ -46,8 +48,16 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
     @get:Input
     abstract val optimizer: Property<String>
 
+    @get:Inject
+    abstract val javaToolchains: JavaToolchainService
+
     @TaskAction
     fun execute() {
+        val java = javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+        val javaHome = java.get().metadata.installationPath.asFile
+        println("Using Java home: ${javaHome.absolutePath}")
         exec.exec {
             commandLine(
                 "zig", "build", "build",
@@ -66,6 +76,7 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
             if (optimizer.isPresent) {
                 args("-Doptimize=${optimizer.get()}")
             }
+            environment("JAVA_HOME", javaHome.absolutePath)
             workingDir = workingDirectory.get().asFile
         }
     }
