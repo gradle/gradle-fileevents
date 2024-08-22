@@ -379,18 +379,6 @@ Java_net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_startWatch
     }
 }
 
-JNIEXPORT jboolean JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_isGlibc0(JNIEnv*, jclass) {
-    void* libcLibrary = dlopen("libc.so.6", RTLD_LAZY);
-    if (!libcLibrary) {
-        return false;
-    }
-    void* libcVerCheck = dlsym(libcLibrary, "gnu_get_libc_version");
-    jboolean isValid = libcVerCheck != NULL;
-    dlclose(libcLibrary);
-    return isValid;
-}
-
 JNIEXPORT void JNICALL
 Java_net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_00024LinuxFileWatcher_stopWatchingMovedPaths0(JNIEnv* env, jobject, jobject javaServer, jobjectArray jAbsolutePathsToCheck, jobject jDroppedPaths) {
     try {

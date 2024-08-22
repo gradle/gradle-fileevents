@@ -55,14 +55,45 @@ public class FileEvents {
             case "windows-i386" -> "i386-windows-gnu";
             case "windows-amd64" -> "x86_64-windows-gnu";
             case "windows-aarch64" -> "aarch64-windows-gnu";
-            case "linux-i386" -> "i386-linux-gnu";
-            case "linux-amd64" -> "x86_64-linux-gnu";
-            case "linux-aarch64" -> "aarch64-linux-gnu";
+            case "linux-i386" -> "i386-linux-" + getLinuxVariant();
+            case "linux-amd64" -> "x86_64-linux-" + getLinuxVariant();
+            case "linux-aarch64" -> "aarch64-linux-" + getLinuxVariant();
             case "osx-amd64" -> "x86_64-macos";
             case "osx-aarch64" -> "aarch64-macos";
             default ->
                 throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
         };
+    }
+
+    private static String getLinuxVariant() {
+        return isLinuxWithMusl() ? "musl" : "gnu";
+    }
+
+    /**
+     * Our native libraries don't currently support musl libc.
+     * See <a href="https://github.com/gradle/gradle/issues/24875">#24875</a>.
+     */
+    private static boolean isLinuxWithMusl() {
+        // Musl libc maps /lib/ld-musl-aarch64.so.1 into memory, let's try to find it
+        try {
+            File mapFilesDir = new File("/proc/self/map_files");
+            if (!mapFilesDir.isDirectory()) {
+                return false;
+            }
+            File[] files = mapFilesDir.listFiles();
+            if (files == null) {
+                return false;
+            }
+            for (File file : files) {
+                if (file.getCanonicalFile().getName().contains("-musl-")) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // Ignored
+        }
+
+        return false;
     }
 
     /**
