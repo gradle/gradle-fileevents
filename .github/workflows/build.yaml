@@ -45,10 +45,12 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-20.04, ubuntu-latest, macos-13, macos-latest, windows-2019, windows-latest, alpine ]
+        include:
+            - os: alpine
+              container: openjdk:17-alpine
       fail-fast: false
     runs-on: ${{ matrix.os == 'alpine' && 'ubuntu-latest' || matrix.os }}
-    container:
-      image: ${{ matrix.os == 'alpine' && 'openjdk:17-alpine' || 'none' }}
+    container: ${{ matrix.container }}
 
     needs: build
 
@@ -62,6 +64,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Install udev
+        if: matrix.os == 'alpine'
+        run: |
+          apk update
+          apk add --no-cache udev
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
