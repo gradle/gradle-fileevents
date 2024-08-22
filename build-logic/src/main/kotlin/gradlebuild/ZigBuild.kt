@@ -57,7 +57,6 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
             languageVersion.set(JavaLanguageVersion.of(17))
         }
         val javaHome = java.get().metadata.installationPath.asFile
-        println("Using Java home: ${javaHome.absolutePath}")
         exec.exec {
             commandLine(
                 "zig", "build", "build",
