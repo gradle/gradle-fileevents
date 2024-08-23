@@ -104,8 +104,6 @@ zig {
 }
 
 zig.targets.configureEach {
-    includeDirectories.from(compileJava.options.headerOutputDirectory)
-    includeDirectories.from(git.headerOutputDir)
     optimizer = "ReleaseSmall"
 }
 
