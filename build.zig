@@ -4,7 +4,7 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib = b.addSharedLibrary(.{ .name = "file-events", .target = target, .optimize = optimize });
+    const lib = b.addSharedLibrary(.{ .name = "gradle-fileevents", .target = target, .optimize = optimize });
 
     const env = std.process.getEnvMap(b.allocator) catch unreachable;
     const java_home = env.get("JAVA_HOME") orelse unreachable;
@@ -14,7 +14,7 @@ pub fn build(b: *std.Build) void {
     // Add include directories
     lib.addIncludePath(b.path("build/generated/sources/headers/java"));
     lib.addIncludePath(b.path("build/generated/sources/headers/version"));
-    lib.addIncludePath(b.path("src/file-events/headers"));
+    lib.addIncludePath(b.path("src/main/headers"));
     lib.addSystemIncludePath(.{ .cwd_relative = java_include_path });
     lib.addSystemIncludePath(.{ .cwd_relative = java_darwin_include_path });
 
@@ -43,14 +43,14 @@ pub fn build(b: *std.Build) void {
     // Add source files
     lib.addCSourceFiles(.{
         .files = &.{
-            "src/file-events/cpp/apple_fsnotifier.cpp",
-            "src/file-events/cpp/file-events-version.cpp",
-            "src/file-events/cpp/generic_fsnotifier.cpp",
-            "src/file-events/cpp/jni_support.cpp",
-            "src/file-events/cpp/linux_fsnotifier.cpp",
-            "src/file-events/cpp/logging.cpp",
-            "src/file-events/cpp/services.cpp",
-            "src/file-events/cpp/win_fsnotifier.cpp",
+            "src/main/cpp/apple_fsnotifier.cpp",
+            "src/main/cpp/fileevents_version.cpp",
+            "src/main/cpp/generic_fsnotifier.cpp",
+            "src/main/cpp/jni_support.cpp",
+            "src/main/cpp/linux_fsnotifier.cpp",
+            "src/main/cpp/logging.cpp",
+            "src/main/cpp/services.cpp",
+            "src/main/cpp/win_fsnotifier.cpp",
         },
         .flags = cpp_args,
     });
@@ -73,6 +73,6 @@ pub fn build(b: *std.Build) void {
     });
 
     // Ensure the library is built
-    const build_step = b.step("build", "Build the file-events shared library");
+    const build_step = b.step("build", "Build the file events shared library");
     build_step.dependOn(&install.step);
 }

@@ -62,7 +62,7 @@ testing {
                 implementation(testOnlyClasspath)
 
                 // Add the external JAR as a dependency
-                implementation(files(layout.buildDirectory.file("remote/file-events.jar")))
+                implementation(files(layout.buildDirectory.file("remote/gradle-fileevents.jar")))
             }
         }
     }

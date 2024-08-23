@@ -1,6 +1,6 @@
 # Gradle File Events Library
 
-[![Build Gradle project](https://github.com/lptr/file-events/actions/workflows/build.yaml/badge.svg)](https://github.com/lptr/file-events/actions/workflows/build.yaml)
+[![Build Gradle project](https://github.com/lptr/gradle-fileevents/actions/workflows/build.yaml/badge.svg)](https://github.com/lptr/gradle-fileevents/actions/workflows/build.yaml)
 
 A cross-platform library to watch for changes on the file-system.
 
@@ -29,17 +29,17 @@ these limitations should be removable with some legwork in the future.
 ./gradlew assemble
 ```
 
-This should produce a `build/libs/file-events.jar` file that contains everything.
+This should produce a `build/libs/gradle-fileevents.jar` file that contains everything.
 
 ### Testing
 
-To run tests with a locally built `file-events` JAR:
+To run tests with the library built locally:
 
 ```shell
 ./gradlew test
 ```
 
-To run tests with a the library built on another machine, place the JAR in `build/remote/file-events.jar`:
+To run tests with the library built on another machine, place the JAR in `build/remote/gradle-fileevents.jar`:
 
 ```shell
 ./gradlew externalTest

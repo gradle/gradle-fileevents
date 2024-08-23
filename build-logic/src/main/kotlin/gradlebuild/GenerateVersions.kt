@@ -30,7 +30,7 @@ abstract class GenerateVersions : DefaultTask() {
             """.trimIndent()
         )
 
-        val cFile = headerOutputDir.file("file_events_version.h").get().asFile
+        val cFile = headerOutputDir.file("fileevents_version.h").get().asFile
         cFile.parentFile.mkdirs()
         cFile.writeText(
             """

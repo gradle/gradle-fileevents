@@ -1,4 +1,4 @@
-#include "file_events_version.h"
+#include "fileevents_version.h"
 #include "org_gradle_fileevents_internal_AbstractNativeFileEventFunctions.h"
 
 JNIEXPORT jstring JNICALL
