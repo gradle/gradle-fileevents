@@ -10,7 +10,7 @@ plugins {
     id("gradlebuild.zig")
 }
 
-group = "org.gradle.file-events"
+group = "org.gradle.fileevents"
 
 dependencies {
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")

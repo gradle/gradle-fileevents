@@ -18,11 +18,11 @@ abstract class GenerateVersions : DefaultTask() {
     @TaskAction
     fun execute() {
         val javaFile =
-            javaOutputDir.file("net/rubygrapefruit/platform/internal/jni/FileEventsVersion.java").get().asFile
+            javaOutputDir.file("org/gradle/fileevents/internal/FileEventsVersion.java").get().asFile
         javaFile.parentFile.mkdirs()
         javaFile.writeText(
             """
-            package net.rubygrapefruit.platform.internal.jni;
+            package org.gradle.fileevents.internal;
 
             public class FileEventsVersion {
                 public static final String VERSION = "${version.get()}";

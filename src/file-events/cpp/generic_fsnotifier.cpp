@@ -103,7 +103,7 @@ bool AbstractServer::awaitTermination(long timeoutInMillis) {
 }
 
 JNIEXPORT void JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_00024NativeFileWatcher_initializeRunLoop0(JNIEnv* env, jobject, jobject javaServer) {
+Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_00024NativeFileWatcher_initializeRunLoop0(JNIEnv* env, jobject, jobject javaServer) {
     try {
         AbstractServer* server = getServer(env, javaServer);
         server->initializeRunLoop();
@@ -113,7 +113,7 @@ Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_0
 }
 
 JNIEXPORT void JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_00024NativeFileWatcher_executeRunLoop0(JNIEnv* env, jobject, jobject javaServer) {
+Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_00024NativeFileWatcher_executeRunLoop0(JNIEnv* env, jobject, jobject javaServer) {
     try {
         AbstractServer* server = getServer(env, javaServer);
         server->executeRunLoop(env);
@@ -123,7 +123,7 @@ Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_0
 }
 
 JNIEXPORT void JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_00024NativeFileWatcher_startWatching0(JNIEnv* env, jobject, jobject javaServer, jobjectArray javaPaths) {
+Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_00024NativeFileWatcher_startWatching0(JNIEnv* env, jobject, jobject javaServer, jobjectArray javaPaths) {
     try {
         AbstractServer* server = getServer(env, javaServer);
         vector<u16string> paths;
@@ -137,7 +137,7 @@ Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_0
 }
 
 JNIEXPORT jboolean JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_00024NativeFileWatcher_stopWatching0(JNIEnv* env, jobject, jobject javaServer, jobjectArray javaPaths) {
+Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_00024NativeFileWatcher_stopWatching0(JNIEnv* env, jobject, jobject javaServer, jobjectArray javaPaths) {
     try {
         AbstractServer* server = getServer(env, javaServer);
         vector<u16string> paths;
@@ -150,7 +150,7 @@ Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_0
 }
 
 JNIEXPORT void JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_00024NativeFileWatcher_shutdown0(JNIEnv* env, jobject, jobject javaServer) {
+Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_00024NativeFileWatcher_shutdown0(JNIEnv* env, jobject, jobject javaServer) {
     try {
         AbstractServer* server = getServer(env, javaServer);
         server->shutdownRunLoop();
@@ -160,7 +160,7 @@ Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_0
 }
 
 JNIEXPORT jboolean JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_00024NativeFileWatcher_awaitTermination0(JNIEnv* env, jobject, jobject javaServer, jlong timeoutInMillis) {
+Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_00024NativeFileWatcher_awaitTermination0(JNIEnv* env, jobject, jobject javaServer, jlong timeoutInMillis) {
     try {
         AbstractServer* server = getServer(env, javaServer);
         bool successful = server->awaitTermination((long) timeoutInMillis);
@@ -175,7 +175,7 @@ Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_0
 }
 
 JNIEXPORT void JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_invalidateLogLevelCache0(JNIEnv* env, jobject) {
+Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_invalidateLogLevelCache0(JNIEnv* env, jobject) {
     try {
         logging->invalidateLogLevelCache();
     } catch (const exception& e) {

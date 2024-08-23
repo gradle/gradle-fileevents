@@ -9,8 +9,8 @@
 #include <unordered_map>
 
 #include "generic_fsnotifier.h"
-#include "net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions.h"
-#include "net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_LinuxFileWatcher.h"
+#include "org_gradle_fileevents_internal_LinuxFileEventFunctions.h"
+#include "org_gradle_fileevents_internal_LinuxFileEventFunctions_LinuxFileWatcher.h"
 
 using namespace std;
 

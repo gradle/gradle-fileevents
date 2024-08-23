@@ -370,7 +370,7 @@ void Server::addToList(JNIEnv* env, jobject jList, jstring jString) {
 }
 
 JNIEXPORT jobject JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_startWatcher0(JNIEnv* env, jclass, jobject javaCallback) {
+Java_org_gradle_fileevents_internal_LinuxFileEventFunctions_startWatcher0(JNIEnv* env, jclass, jobject javaCallback) {
     try {
         return wrapServer(env, new Server(env, javaCallback));
     } catch (const InotifyInstanceLimitTooLowException& e) {
@@ -380,7 +380,7 @@ Java_net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_startWatch
 }
 
 JNIEXPORT void JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_00024LinuxFileWatcher_stopWatchingMovedPaths0(JNIEnv* env, jobject, jobject javaServer, jobjectArray jAbsolutePathsToCheck, jobject jDroppedPaths) {
+Java_org_gradle_fileevents_internal_LinuxFileEventFunctions_00024LinuxFileWatcher_stopWatchingMovedPaths0(JNIEnv* env, jobject, jobject javaServer, jobjectArray jAbsolutePathsToCheck, jobject jDroppedPaths) {
     try {
         Server* server = (Server*) getServer(env, javaServer);
         server->stopWatchingMovedPaths(jAbsolutePathsToCheck, jDroppedPaths);
@@ -393,7 +393,7 @@ Java_net_rubygrapefruit_platform_internal_jni_LinuxFileEventFunctions_00024Linux
 
 LinuxJniConstants::LinuxJniConstants(JavaVM* jvm)
     : JniSupport(jvm)
-    , inotifyWatchesLimitTooLowExceptionClass(getThreadEnv(), "net/rubygrapefruit/platform/internal/jni/InotifyWatchesLimitTooLowException")
-    , inotifyInstanceLimitTooLowExceptionClass(getThreadEnv(), "net/rubygrapefruit/platform/internal/jni/InotifyInstanceLimitTooLowException") {
+    , inotifyWatchesLimitTooLowExceptionClass(getThreadEnv(), "org/gradle/fileevents/internal/InotifyWatchesLimitTooLowException")
+    , inotifyInstanceLimitTooLowExceptionClass(getThreadEnv(), "org/gradle/fileevents/internal/InotifyInstanceLimitTooLowException") {
 }
 #endif

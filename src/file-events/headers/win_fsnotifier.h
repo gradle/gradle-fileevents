@@ -11,8 +11,8 @@
 
 // Needs to stay below <windows.h> otherwise byte symbol gets confused with std::byte
 #include "generic_fsnotifier.h"
-#include "net_rubygrapefruit_platform_internal_jni_WindowsFileEventFunctions.h"
-#include "net_rubygrapefruit_platform_internal_jni_WindowsFileEventFunctions_WindowsFileWatcher.h"
+#include "org_gradle_fileevents_internal_WindowsFileEventFunctions.h"
+#include "org_gradle_fileevents_internal_WindowsFileEventFunctions_WindowsFileWatcher.h"
 
 using namespace std;
 

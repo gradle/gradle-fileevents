@@ -12,7 +12,7 @@
 #include <dispatch/dispatch.h>
 
 #include "generic_fsnotifier.h"
-#include "net_rubygrapefruit_platform_internal_jni_OsxFileEventFunctions.h"
+#include "org_gradle_fileevents_internal_OsxFileEventFunctions.h"
 
 using namespace std;
 

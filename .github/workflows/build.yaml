@@ -39,7 +39,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: library
-          path: build/libs/file-events.jar
+          path: build/libs/
+          if-no-files-found: error
 
   test:
     strategy:

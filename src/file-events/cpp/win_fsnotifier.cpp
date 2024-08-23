@@ -477,12 +477,12 @@ void Server::stopWatchingMovedPaths(jobject droppedPaths) {
 //
 
 JNIEXPORT jobject JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_WindowsFileEventFunctions_startWatcher0(JNIEnv* env, jclass, jint eventBufferSize, jlong commandTimeoutInMillis, jobject javaCallback) {
+Java_org_gradle_fileevents_internal_WindowsFileEventFunctions_startWatcher0(JNIEnv* env, jclass, jint eventBufferSize, jlong commandTimeoutInMillis, jobject javaCallback) {
     return wrapServer(env, new Server(env, eventBufferSize, (long) commandTimeoutInMillis, javaCallback));
 }
 
 JNIEXPORT void JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_WindowsFileEventFunctions_00024WindowsFileWatcher_stopWatchingMovedPaths0(JNIEnv* env, jobject, jobject javaServer, jobject jDroppedPaths) {
+Java_org_gradle_fileevents_internal_WindowsFileEventFunctions_00024WindowsFileWatcher_stopWatchingMovedPaths0(JNIEnv* env, jobject, jobject javaServer, jobject jDroppedPaths) {
     try {
         Server* server = (Server*) getServer(env, javaServer);
         server->stopWatchingMovedPaths(jDroppedPaths);

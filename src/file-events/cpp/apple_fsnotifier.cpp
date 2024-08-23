@@ -249,7 +249,7 @@ bool Server::unregisterPaths(const vector<u16string>& paths) {
 }
 
 JNIEXPORT jobject JNICALL
-Java_net_rubygrapefruit_platform_internal_jni_OsxFileEventFunctions_startWatcher0(JNIEnv* env, jclass, long latencyInMillis, jobject javaCallback) {
+Java_org_gradle_fileevents_internal_OsxFileEventFunctions_startWatcher0(JNIEnv* env, jclass, long latencyInMillis, jobject javaCallback) {
     return wrapServer(env, new Server(env, javaCallback, latencyInMillis));
 }
 

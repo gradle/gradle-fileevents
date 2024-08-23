@@ -22,6 +22,6 @@ develocity {
     }
 }
 
-rootProject.name = "file-events"
+rootProject.name = "gradle-fileevents"
 
 enableFeaturePreview("GROOVY_COMPILATION_AVOIDANCE")

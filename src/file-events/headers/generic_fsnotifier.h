@@ -14,8 +14,8 @@
 #include "exception.h"
 #include "jni_support.h"
 #include "logging.h"
-#include "net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions.h"
-#include "net_rubygrapefruit_platform_internal_jni_AbstractNativeFileEventFunctions_NativeFileWatcher.h"
+#include "org_gradle_fileevents_internal_AbstractNativeFileEventFunctions.h"
+#include "org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_NativeFileWatcher.h"
 
 using namespace std;
 
