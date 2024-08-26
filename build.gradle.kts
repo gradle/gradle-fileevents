@@ -105,6 +105,9 @@ zig {
 
 zig.targets.configureEach {
     optimizer = "ReleaseSmall"
+    headers.from(compileJava.options.headerOutputDirectory)
+    headers.from(layout.projectDirectory.dir("src/main/headers"))
+    sources.from(layout.projectDirectory.dir("src/main/cpp"))
 }
 
 tasks.withType<ZigBuild>().all {

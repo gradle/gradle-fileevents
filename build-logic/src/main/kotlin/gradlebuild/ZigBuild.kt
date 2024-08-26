@@ -39,7 +39,11 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val includeDirectories: ConfigurableFileCollection
+    abstract val headers: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val sources: ConfigurableFileCollection
 
     @get:Input
     abstract val target: Property<String>
@@ -63,8 +67,8 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
                 "--prefix", outputDirectory.get().asFile.absolutePath,
                 "--cache-dir", cacheDirectory.get().asFile.absolutePath
             )
-            includeDirectories.forEach { includeDirectory ->
-                args("--search-prefix", includeDirectory.absolutePath)
+            headers.forEach { headerDir ->
+                args("--search-prefix", headerDir.absolutePath)
             }
             if (target.isPresent) {
                 args("-Dtarget=${target.get()}")

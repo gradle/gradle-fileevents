@@ -2,7 +2,8 @@ import gradlebuild.ZigBuild
 import java.util.*
 
 interface TargetPlatform : Named {
-    val includeDirectories: ConfigurableFileCollection
+    val headers: ConfigurableFileCollection
+    val sources: ConfigurableFileCollection
     val libcFile: RegularFileProperty
     val optimizer: Property<String>
 }
@@ -41,7 +42,8 @@ afterEvaluate {
             if (target.name != "native") {
                 this.target = target.name
             }
-            includeDirectories.from(target.includeDirectories)
+            headers.from(target.headers)
+            sources.from(target.sources)
             libcFile = target.libcFile
             optimizer = target.optimizer
         }

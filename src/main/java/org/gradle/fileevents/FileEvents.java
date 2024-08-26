@@ -37,9 +37,9 @@ public class FileEvents {
                 String nativeVersion = AbstractNativeFileEventFunctions.getVersion();
                 if (!nativeVersion.equals(FileEventsVersion.VERSION)) {
                     throw new NativeException(String.format(
-                        "Unexpected native file events library version loaded. Expected %s, was %s.",
-                        nativeVersion,
-                        FileEventsVersion.VERSION
+                        "Unexpected file events library version loaded. Expected %s, was %s.",
+                        FileEventsVersion.VERSION,
+                        nativeVersion
                     ));
                 }
             } catch (NativeException e) {
