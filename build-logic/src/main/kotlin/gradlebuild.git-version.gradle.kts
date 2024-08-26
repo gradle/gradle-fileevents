@@ -10,7 +10,7 @@ abstract class GitVersionValueSource @Inject constructor(val exec: ExecOperation
     override fun obtain(): String? {
         return ByteArrayOutputStream().use { outputStream ->
             exec.exec {
-                commandLine("git", "describe", "--tags")
+                commandLine("git", "describe", "--tags", "--dirty")
                 standardOutput = outputStream
                 workingDir = parameters.rootDir.get().asFile
             }
