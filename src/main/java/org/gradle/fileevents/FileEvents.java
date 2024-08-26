@@ -51,18 +51,26 @@ public class FileEvents {
     }
 
     private static String getPlatformName(Platform platform) {
-        return switch (platform.getId()) {
-            case "windows-i386" -> "i386-windows-gnu";
-            case "windows-amd64" -> "x86_64-windows-gnu";
-            case "windows-aarch64" -> "aarch64-windows-gnu";
-            case "linux-i386" -> "i386-linux-" + getLinuxVariant();
-            case "linux-amd64" -> "x86_64-linux-" + getLinuxVariant();
-            case "linux-aarch64" -> "aarch64-linux-" + getLinuxVariant();
-            case "osx-amd64" -> "x86_64-macos";
-            case "osx-aarch64" -> "aarch64-macos";
-            default ->
+        switch (platform.getId()) {
+            case "windows-i386":
+                return "i386-windows-gnu";
+            case "windows-amd64":
+                return "x86_64-windows-gnu";
+            case "windows-aarch64":
+                return "aarch64-windows-gnu";
+            case "linux-i386":
+                return "i386-linux-" + getLinuxVariant();
+            case "linux-amd64":
+                return "x86_64-linux-" + getLinuxVariant();
+            case "linux-aarch64":
+                return "aarch64-linux-" + getLinuxVariant();
+            case "osx-amd64":
+                return "x86_64-macos";
+            case "osx-aarch64":
+                return "aarch64-macos";
+            default:
                 throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
-        };
+        }
     }
 
     private static String getLinuxVariant() {
