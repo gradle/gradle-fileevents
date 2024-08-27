@@ -21,8 +21,13 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        // JDK 17 is needed for the `jni_md.h` that allows `JNIEXPORT` to be overriden
+        languageVersion = JavaLanguageVersion.of(17)
     }
+
+    // Consumers require Java 8 compatibility
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 // Define a custom configuration that only includes the test sources
