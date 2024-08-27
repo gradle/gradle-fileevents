@@ -159,7 +159,7 @@ publishing {
             println("Artifactory Password: ${artifactoryPassword?.replace(".", "*")}")
 
             name = "remote"
-            val libsType = if (snapshot) "snaposhots" else "releases"
+            val libsType = if (snapshot) "snapshots" else "releases"
             url = uri("${artifactoryUrl}/libs-${libsType}-local")
             credentials {
                 username = artifactoryUsername
