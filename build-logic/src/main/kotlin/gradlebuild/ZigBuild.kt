@@ -24,6 +24,9 @@ import javax.inject.Inject
 @CacheableTask
 abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : DefaultTask() {
     @get:Internal
+    abstract val executablePath: Property<String>
+
+    @get:Internal
     abstract val workingDirectory: DirectoryProperty
 
     @get:OutputDirectory
@@ -62,8 +65,9 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
         }
         val javaHome = java.get().metadata.installationPath.asFile
         exec.exec {
-            commandLine(
-                "zig", "build", "build",
+            executable = executablePath.get()
+            args(
+                "build", "build",
                 "--prefix", outputDirectory.get().asFile.absolutePath,
                 "--cache-dir", cacheDirectory.get().asFile.absolutePath
             )
