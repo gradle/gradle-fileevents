@@ -145,7 +145,7 @@ fun toMavenVersion(gitVersion: String): Pair<String, Boolean> {
 
 val (mavenVersion, snapshot) = toMavenVersion(git.version.get())
 
-println("Publishing version $mavenVersion to ${if (snapshot) "snapshot" else "release"} repository")
+println("Publishing version $mavenVersion to ${if (snapshot) "snapshot" else "release"} repository (Git version: ${git.version.get()})")
 
 publishing {
     repositories {
