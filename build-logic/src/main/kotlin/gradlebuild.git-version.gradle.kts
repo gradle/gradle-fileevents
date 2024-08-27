@@ -3,9 +3,9 @@ import java.io.ByteArrayOutputStream
 
 abstract class GitVersionValueSource @Inject constructor(val exec: ExecOperations) :
     ValueSource<String, GitVersionValueSource.Params> {
-        interface Params : ValueSourceParameters {
-            val rootDir: DirectoryProperty
-        }
+    interface Params : ValueSourceParameters {
+        val rootDir: DirectoryProperty
+    }
 
     override fun obtain(): String? {
         return ByteArrayOutputStream().use { outputStream ->
@@ -19,16 +19,16 @@ abstract class GitVersionValueSource @Inject constructor(val exec: ExecOperation
     }
 }
 
-interface GitVersionExtension {
-    val version: Property<String>
-    val javaOutputDir: DirectoryProperty
-    val headerOutputDir: DirectoryProperty
+abstract class GitVersionExtension(val version: Provider<String>) {
+    abstract val javaOutputDir: DirectoryProperty
+    abstract val headerOutputDir: DirectoryProperty
 }
 
-val extension = project.extensions.create<GitVersionExtension>("git")
-extension.version = providers.of(GitVersionValueSource::class.java) {
+val gitVersion = providers.of(GitVersionValueSource::class.java) {
     parameters.rootDir = project.rootDir
 }
+
+val extension = project.extensions.create<GitVersionExtension>("git", gitVersion)
 
 val generateVersionFile by tasks.registering(GenerateVersions::class) {
     version = extension.version

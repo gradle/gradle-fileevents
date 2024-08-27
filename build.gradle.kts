@@ -1,11 +1,13 @@
 @file:Suppress("UnstableApiUsage")
 
 import gradlebuild.ZigBuild
+import org.gradle.util.internal.VersionNumber
 
 plugins {
     id("groovy")
     id("java-library")
     id("cpp")
+    id("maven-publish")
     id("gradlebuild.git-version")
     id("gradlebuild.zig")
 }
@@ -121,6 +123,78 @@ tasks.withType<ZigBuild>().all {
         into("net/rubygrapefruit/platform") {
             into(zigBuild.target) {
                 from(zigBuild.outputDirectory.dir("out"))
+            }
+        }
+    }
+}
+
+fun toMavenVersion(gitVersion: String): Pair<String, Boolean> {
+    val matcher = Regex("(.*?)(-g[0-9a-f]+)?(-dirty)?").matchEntire(gitVersion) ?: error("Invalid version: $gitVersion")
+    val version = VersionNumber.parse(matcher.groupValues[1])
+    // TODO Prevent publishing dirty stuff?
+    // If it's not a tagged version, or if there are local changes, this is a snapshot
+    val snapshot = matcher.groupValues[2].isNotEmpty() || matcher.groupValues[3].isNotEmpty()
+    val mavenVersion = if (snapshot) {
+        VersionNumber(version.major, version.minor + 1, 0, "SNAPSHOT").toString()
+    } else {
+        version.toString()
+    }
+    return Pair(mavenVersion, snapshot)
+}
+
+val (mavenVersion, snapshot) = toMavenVersion(git.version.get())
+
+println("Publishing version $mavenVersion to ${if (snapshot) "snapshot" else "release"} repository")
+
+publishing {
+    repositories {
+        maven {
+            val artifactoryUrl = providers.environmentVariable("ARTIFACTORY_URL").orNull
+            val artifactoryToken = providers.environmentVariable("ARTIFACTORY_TOKEN").orNull
+            name = "remote"
+            val libsType = if (snapshot) "snaposhots" else "releases"
+            url = uri("${artifactoryUrl}/libs-${libsType}-local")
+            credentials(HttpHeaderCredentials::class) {
+                name = "Authorization"
+                value = "Bearer $artifactoryToken"
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("library") {
+            from(components["java"])
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = mavenVersion
+            description = project.description
+
+            pom {
+                packaging = "jar"
+                // TODO Update to final GitHub URL
+                url = "https://github.com/lptr/gradle-fileevents"
+                licenses {
+                    license {
+                        name = "Apache-2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        name = "The Gradle team"
+                        organization = "Gradle Inc."
+                        organizationUrl = "https://gradle.org"
+                    }
+                }
+                scm {
+                    // TODO Update to final GitHub URLs
+                    connection = "scm:git:git://github.com/lptr/gradle-fileevents.git"
+                    developerConnection = "scm:git:ssh://github.com:lptr/gradle-fileevents.git"
+                    url = "https://github.com/lptr/gradle-fileevents"
+                }
             }
         }
     }
