@@ -62,7 +62,7 @@ pub fn build(b: *std.Build) void {
     if (target.result.os.tag == .macos) {
         lib.linkFramework("CoreFoundation");
         lib.linkFramework("CoreServices");
-        lib.addSystemFrameworkPath(.{ .cwd_relative = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks" });
+        lib.addSystemFrameworkPath(.{ .cwd_relative = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks" });
     }
 
     // lib.verbose_cc = true;
