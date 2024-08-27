@@ -150,17 +150,20 @@ println("Publishing version $mavenVersion to ${if (snapshot) "snapshot" else "re
 publishing {
     repositories {
         maven {
-            val artifactoryUrl = providers.environmentVariable("ARTIFACTORY_URL").orNull
-            val artifactoryToken = providers.environmentVariable("ARTIFACTORY_TOKEN").orNull
+            val artifactoryUrl = providers.environmentVariable("GRADLE_INTERNAL_REPO_URL").orNull
+            val artifactoryUsername = providers.environmentVariable("ORG_GRADLE_PROJECT_publishUserName").orNull
+            val artifactoryPassword = providers.environmentVariable("ORG_GRADLE_PROJECT_publishApiKey").orNull
+
+            println("Artifactory URL: $artifactoryUrl")
+            println("Artifactory Username: $artifactoryUsername")
+            println("Artifactory Password: ${artifactoryPassword?.replace(".", "*")}")
+
             name = "remote"
             val libsType = if (snapshot) "snaposhots" else "releases"
             url = uri("${artifactoryUrl}/libs-${libsType}-local")
-            credentials(HttpHeaderCredentials::class) {
-                name = "Authorization"
-                value = "Bearer $artifactoryToken"
-            }
-            authentication {
-                create<HttpHeaderAuthentication>("header")
+            credentials {
+                username = artifactoryUsername
+                password = artifactoryPassword
             }
         }
     }
