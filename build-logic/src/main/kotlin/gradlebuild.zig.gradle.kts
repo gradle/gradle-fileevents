@@ -38,6 +38,8 @@ val zigBuild by tasks.registering {
 
 tasks.withType<ZigBuild>().configureEach {
     executablePath = zigInstall.flatMap { it.executablePath }
+    // TODO This should not be required, it's only here because Provider.zip() does not carry dependencies
+    dependsOn(zigInstall)
     workingDirectory = layout.projectDirectory
     target.convention("native")
     outputDirectory = extension.outputDir.dir(target)
