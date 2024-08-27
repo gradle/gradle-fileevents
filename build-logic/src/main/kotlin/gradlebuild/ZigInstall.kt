@@ -44,20 +44,24 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
 
     @TaskAction
     fun execute() {
-        val outputStream = ByteArrayOutputStream()
-        val result = exec.exec {
-            commandLine = listOf("zig", "version")
-            standardOutput = outputStream
-            isIgnoreExitValue = true
-        }
         val installDir = this.installDir.get().asFile
-        if (result.exitValue == 0) {
-            val installedVersion = outputStream.toString().trim()
-            println("Found Zig ${installedVersion}")
-            if (installedVersion == zigVersion.get()) {
-                installDir.deleteRecursively()
-                return
+        try {
+            val outputStream = ByteArrayOutputStream()
+            val result = exec.exec {
+                commandLine = listOf("zig", "version")
+                standardOutput = outputStream
+                isIgnoreExitValue = true
             }
+            if (result.exitValue == 0) {
+                val installedVersion = outputStream.toString().trim()
+                println("Found Zig ${installedVersion}")
+                if (installedVersion == zigVersion.get()) {
+                    installDir.deleteRecursively()
+                    return
+                }
+            }
+        } catch (e: Exception) {
+            println("Zig not found on path")
         }
 
         // Install Zig
