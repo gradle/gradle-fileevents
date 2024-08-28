@@ -19,22 +19,25 @@ abstract class GitVersionValueSource @Inject constructor(val exec: ExecOperation
     }
 }
 
-abstract class GitVersionExtension(val version: Provider<String>) {
-    abstract val javaOutputDir: DirectoryProperty
-    abstract val headerOutputDir: DirectoryProperty
-}
+abstract class GitVersionExtension(
+    val version: Provider<String>,
+    val javaOutputDir: Provider<Directory>,
+    val headerOutputDir: Provider<Directory>,
+)
 
 val gitVersion = providers.of(GitVersionValueSource::class.java) {
     parameters.rootDir = project.rootDir
 }
 
-val extension = project.extensions.create<GitVersionExtension>("git", gitVersion)
-
 val generateVersionFile by tasks.registering(GenerateVersions::class) {
-    version = extension.version
+    version = gitVersion
     javaOutputDir = layout.buildDirectory.dir("generated/sources/java/version")
     headerOutputDir = layout.buildDirectory.dir("generated/sources/headers/version")
 }
 
-extension.javaOutputDir = generateVersionFile.flatMap { it.javaOutputDir }
-extension.headerOutputDir = generateVersionFile.flatMap { it.headerOutputDir }
+project.extensions.create<GitVersionExtension>(
+    "git",
+    gitVersion,
+    generateVersionFile.flatMap { it.javaOutputDir },
+    generateVersionFile.flatMap { it.headerOutputDir },
+)
