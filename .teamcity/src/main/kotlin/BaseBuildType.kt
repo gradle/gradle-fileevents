@@ -20,8 +20,8 @@ import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 import jetbrains.buildServer.configs.kotlin.buildFeatures.freeDiskSpace
 
-open class FileEventsBaseBuildType(
-    init: BuildType.() -> Unit,
+open class BaseBuildType(
+    val init: BuildType.() -> Unit,
 ): BuildType({
     params {
         param("env.DEVELOCITY_ACCESS_KEY", "%ge.gradle.org.access.key%")

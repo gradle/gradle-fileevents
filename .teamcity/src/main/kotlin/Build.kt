@@ -16,12 +16,13 @@
 
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 
-object BuildFileEvents : FileEventsBaseBuildType({
+class Build : BaseBuildType({
     name = "Build File Events"
 
     artifactRules = """
         build/reports/** => file-events/reports
         build-logic/build/reports/** => build-logic/reports
+        build/libs => repo
     """.trimIndent()
 
     params {
@@ -29,8 +30,6 @@ object BuildFileEvents : FileEventsBaseBuildType({
         param("env.PGP_SIGNING_KEY_PASSPHRASE", "%pgpSigningPassphrase%")
 
         param("env.GRADLE_INTERNAL_REPO_URL", "%gradle.internal.repository.url%")
-        param("env.JAVA_HOME", "%macos.java17.openjdk.aarch64%")
-
     }
 
     steps {
@@ -40,8 +39,5 @@ object BuildFileEvents : FileEventsBaseBuildType({
         }
     }
 
-    requirements {
-        contains("teamcity.agent.jvm.os.name", "Mac OS X")
-        contains("teamcity.agent.jvm.os.arch", "aarch64")
-    }
+    runOn(Agent.MacOsAarch64, 17)
 })
