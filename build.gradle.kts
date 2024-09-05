@@ -180,7 +180,7 @@ publishing {
             pom {
                 packaging = "jar"
                 // TODO Update to final GitHub URL
-                url = "https://github.com/lptr/gradle-fileevents"
+                url = "https://github.com/gradle/gradle-fileevents"
                 licenses {
                     license {
                         name = "Apache-2.0"
@@ -196,9 +196,9 @@ publishing {
                 }
                 scm {
                     // TODO Update to final GitHub URLs
-                    connection = "scm:git:git://github.com/lptr/gradle-fileevents.git"
-                    developerConnection = "scm:git:ssh://github.com:lptr/gradle-fileevents.git"
-                    url = "https://github.com/lptr/gradle-fileevents"
+                    connection = "scm:git:git://github.com/gradle/gradle-fileevents.git"
+                    developerConnection = "scm:git:ssh://github.com:gradle/gradle-fileevents.git"
+                    url = "https://github.com/gradle/gradle-fileevents"
                 }
             }
         }

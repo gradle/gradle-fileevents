@@ -1,6 +1,6 @@
 # Gradle File Events Library
 
-[![Build Gradle project](https://github.com/lptr/gradle-fileevents/actions/workflows/build.yaml/badge.svg)](https://github.com/lptr/gradle-fileevents/actions/workflows/build.yaml)
+[![Build Gradle project](https://github.com/gradle/gradle-fileevents/actions/workflows/build.yaml/badge.svg)](https://github.com/gradle/gradle-fileevents/actions/workflows/build.yaml)
 
 A cross-platform library to watch for changes on the file-system.
 
