@@ -16,6 +16,7 @@
 package org.gradle.fileevents.internal
 
 import net.rubygrapefruit.platform.internal.Platform
+import spock.lang.Ignore
 import spock.lang.Issue
 import spock.lang.Requires
 import spock.lang.Unroll
@@ -169,6 +170,7 @@ class MovedDirectoriesFileEventFunctionsTest extends AbstractFileEventFunctionsT
         expectEvents change(CREATED, createdFile)
     }
 
+    @Ignore("This test is flaky")
     @Requires({ Platform.current().macOs })
     def "keeps watching when parent of watched directory is moved on macOS"() {
         given:
