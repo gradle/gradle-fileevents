@@ -68,11 +68,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install udev
+      - name: Install dependencies
         if: matrix.os == 'alpine'
         run: |
           apk update
-          apk add --no-cache udev
+          apk add --no-cache git udev
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
