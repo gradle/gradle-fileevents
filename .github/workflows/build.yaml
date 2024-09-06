@@ -61,6 +61,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - if: matrix.os == 'alpine'
+        name: List files
+        run: |
+          pwd
+          ls -la
+
       - name: Set up JDK
         if: matrix.os != 'alpine'
         uses: actions/setup-java@v4
