@@ -56,6 +56,12 @@ jobs:
     needs: build
 
     steps:
+      - name: Install dependencies
+        if: matrix.os == 'alpine'
+        run: |
+          apk update
+          apk add --no-cache git udev
+
       - name: Checkout project sources
         uses: actions/checkout@v4
         with:
@@ -73,12 +79,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Install dependencies
-        if: matrix.os == 'alpine'
-        run: |
-          apk update
-          apk add --no-cache git udev
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
