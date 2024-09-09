@@ -16,7 +16,8 @@
 
 import jetbrains.buildServer.configs.kotlin.Requirements
 
-enum class Agent(val os: Os, val architecture: Architecture) {
+enum class Agent(val os: Os, val architecture: Architecture, val container: String? = null) {
+    AlpineLinuxAmd64(os = Os.Ubuntu22, architecture = Architecture.Amd64, container = "openjdk:17-alpine"),
     UbuntuAmd64(os = Os.Ubuntu16, architecture = Architecture.Amd64),
     UbuntuAarch64(os = Os.Ubuntu24, architecture = Architecture.Aarch64),
     AmazonLinuxAmd64(os = Os.AmazonLinux, architecture = Architecture.Amd64),
@@ -32,6 +33,8 @@ interface Os {
     val osType: String
 
     object Ubuntu16 : Ubuntu(16)
+
+    object Ubuntu22 : Ubuntu(22) // Ubuntu 22.04 LTS + Docker
 
     object Ubuntu24 : Ubuntu(24)
 
