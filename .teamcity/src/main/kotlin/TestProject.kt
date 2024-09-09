@@ -29,8 +29,6 @@ class TestProject(build: Build) : Project({
             name = "Test on $agent"
             id = RelativeId("Test$agent")
 
-            runOn(agent, 17)
-
             steps {
                 gradle {
                     name = "Gradle externalTest"
@@ -50,6 +48,8 @@ class TestProject(build: Build) : Project({
                     }
                 }
             }
+
+            runOn(agent, 17)
         })
     }
 }) {
