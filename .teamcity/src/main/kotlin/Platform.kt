@@ -19,8 +19,6 @@ import jetbrains.buildServer.configs.kotlin.Requirements
 enum class Agent(val os: Os, val architecture: Architecture) {
     UbuntuAmd64(os = Os.Ubuntu16, architecture = Architecture.Amd64),
     UbuntuAarch64(os = Os.Ubuntu24, architecture = Architecture.Aarch64),
-    AmazonLinuxAmd64(os = Os.AmazonLinux, architecture = Architecture.Amd64),
-    AmazonLinuxAarch64(os = Os.AmazonLinux, architecture = Architecture.Aarch64),
     CentOsAmd64(os = Os.CentOs, architecture = Architecture.Amd64),
     WindowsAmd64(os = Os.Windows, architecture = Architecture.Amd64),
     MacOsAmd64(os = Os.MacOs, architecture = Architecture.Amd64),
@@ -34,12 +32,6 @@ interface Os {
     object Ubuntu16 : Ubuntu(16)
 
     object Ubuntu24 : Ubuntu(24)
-
-    object AmazonLinux : Linux() {
-        override fun Requirements.additionalRequirements() {
-            contains(osDistributionNameParameter, "amazon")
-        }
-    }
 
     object CentOs : Linux() {
         override fun Requirements.additionalRequirements() {
