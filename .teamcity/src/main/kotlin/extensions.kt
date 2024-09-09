@@ -16,6 +16,7 @@
 
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.Requirements
+import jetbrains.buildServer.configs.kotlin.buildSteps.GradleBuildStep
 
 fun Requirements.requireAgent(agent: Agent) {
     agent.os.addAgentRequirements(this)
@@ -23,11 +24,23 @@ fun Requirements.requireAgent(agent: Agent) {
 }
 
 fun BuildType.runOn(agent: Agent, javaVersion: Int) {
-    params {
-        param("env.JAVA_HOME", "%${agent.os.osType.lowercase()}.java${javaVersion}.openjdk.${agent.architecture.paramName}%")
+    if (agent.container.isNullOrBlank()) {
+        params {
+            param(
+                "env.JAVA_HOME",
+                "%${agent.os.osType.lowercase()}.java${javaVersion}.openjdk.${agent.architecture.paramName}%"
+            )
+        }
     }
 
     requirements {
         requireAgent(agent)
+    }
+
+    if (!agent.container.isNullOrBlank()) {
+        steps.items.filterIsInstance<GradleBuildStep>().forEach {
+            it.dockerImage = agent.container
+            it.dockerPull = true
+        }
     }
 }
