@@ -16,6 +16,7 @@ plugins {
 }
 
 develocity {
+    server = "https://ge.gradle.org"
     buildScan {
         termsOfUseUrl = "https://gradle.com/terms-of-service"
         termsOfUseAgree = "yes"
