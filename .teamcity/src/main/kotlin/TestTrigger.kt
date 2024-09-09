@@ -27,18 +27,16 @@ class TestTrigger(dependencies: List<BuildType>) : BaseBuildType({
 
     triggers {
         vcs {
-            quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_CUSTOM
-            quietPeriod = 0
-
             branchFilter = """
-                +:(*)
-                +:gh-readonly-(queue/*/pr-*)-*
+                +:*
             """.trimIndent()
 
             triggerRules = """
                 +:.
             """.trimIndent()
 
+            perCheckinTriggering = true
+            enableQueueOptimization = false
             enabled = true
         }
     }
