@@ -18,10 +18,12 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
-import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
-class TestTrigger(dependencies: List<BuildType>) : BaseBuildType({
+class TestTrigger(
+    dependencies: List<BuildType>,
+    private val optionalTests: List<BuildType>,
+) : BaseBuildType({
     name = "Test File Events (Trigger)"
     type = Type.COMPOSITE
 
@@ -55,7 +57,11 @@ class TestTrigger(dependencies: List<BuildType>) : BaseBuildType({
     dependencies {
         dependencies.forEach {
             snapshot(it) {
-                onDependencyFailure = FailureAction.ADD_PROBLEM
+                onDependencyFailure = if (it in optionalTests) {
+                    FailureAction.IGNORE
+                } else {
+                    FailureAction.ADD_PROBLEM
+                }
                 onDependencyCancel = FailureAction.FAIL_TO_START
             }
         }

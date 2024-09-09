@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
+import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.RelativeId
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.ui.id
 
-class TestProject(build: Build) : Project({
+class TestProject(
+    build: Build,
+    private val optionalTests: MutableList<BuildType> = mutableListOf()
+) : Project({
     name = "Test File Events"
     id(RelativeId("Test"))
 
     Agent.entries.forEach { agent ->
-        buildType(BaseBuildType {
+        val test = BaseBuildType {
             name = "Test on $agent"
             id = RelativeId("Test$agent")
 
@@ -50,8 +54,12 @@ class TestProject(build: Build) : Project({
             }
 
             runOn(agent, 17)
-        })
+        }
+        if (agent.optional) {
+            optionalTests.add(test)
+        }
+        buildType(test)
     }
 }) {
-    val trigger = TestTrigger(this.buildTypes)
+    val trigger = TestTrigger(this.buildTypes, this.optionalTests)
 }
