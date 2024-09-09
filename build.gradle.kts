@@ -155,10 +155,6 @@ publishing {
             val artifactoryUsername = providers.environmentVariable("ORG_GRADLE_PROJECT_publishUserName").orNull
             val artifactoryPassword = providers.environmentVariable("ORG_GRADLE_PROJECT_publishApiKey").orNull
 
-            println("Artifactory URL: $artifactoryUrl")
-            println("Artifactory Username: $artifactoryUsername")
-            println("Artifactory Password: ${artifactoryPassword?.replace(".", "*")}")
-
             name = "remote"
             val libsType = if (snapshot) "snapshots" else "releases"
             url = uri("${artifactoryUrl}/libs-${libsType}-local")
@@ -179,12 +175,11 @@ publishing {
 
             pom {
                 packaging = "jar"
-                // TODO Update to final GitHub URL
                 url = "https://github.com/gradle/gradle-fileevents"
                 licenses {
                     license {
                         name = "Apache-2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 developers {
@@ -195,7 +190,6 @@ publishing {
                     }
                 }
                 scm {
-                    // TODO Update to final GitHub URLs
                     connection = "scm:git:git://github.com/gradle/gradle-fileevents.git"
                     developerConnection = "scm:git:ssh://github.com:gradle/gradle-fileevents.git"
                     url = "https://github.com/gradle/gradle-fileevents"
