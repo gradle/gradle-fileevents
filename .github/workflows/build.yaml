@@ -61,7 +61,7 @@ jobs:
         if: matrix.os == 'alpine'
         run: |
           apk update
-          apk add --no-cache git udev
+          apk add --no-cache git
 
       - name: Checkout project sources
         uses: actions/checkout@v4
