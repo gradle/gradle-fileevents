@@ -1,5 +1,6 @@
 import gradlebuild.ZigBuild
 import gradlebuild.ZigInstall
+import org.gradle.internal.os.OperatingSystem
 import java.util.*
 
 interface TargetPlatform : Named {

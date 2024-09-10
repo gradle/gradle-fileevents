@@ -65,12 +65,12 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         }
 
         // Install Zig
-        println("Installing Zig ${zigVersion.get()}")
+        println("Installing Zig ${zigVersion.get()} for ${os()} ${arch()}")
         val cacheRoot = cacheDir.get().asFile
         cacheRoot.mkdirs()
-        val zigArchive = cacheRoot.resolve("zig-${zigVersion.get()}.tar.xz")
+        val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.tar.xz")
         // TODO Figure out OS and architecture
-        downloadFile("https://ziglang.org/builds/zig-macos-aarch64-${zigVersion.get()}.tar.xz", zigArchive)
+        downloadFile("https://ziglang.org/builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
         unpackTarXz(zigArchive, installDir)
         val executable = installDir.zigExecutablePath(zigVersion.get())
         executable.setExecutable(true)
@@ -105,5 +105,27 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
     }
 
     private fun File.zigExecutablePath(version: String): File =
-        resolve("zig-macos-aarch64-${version}/zig")
+        resolve("${zigName(version)}/zig")
+
+    private fun zigName(zigVersion: String) =
+        "zig-${os()}-${arch()}-${zigVersion}"
+
+    private fun os(): String {
+        val os = System.getProperty("os.name").lowercase()
+        return when {
+            os.contains("mac") -> "macos"
+            os.contains("win") -> "windows"
+            os.contains("linux") -> "linux"
+            else -> error("Unsupported OS: $os")
+        }
+    }
+
+    private fun arch(): String {
+        val arch = System.getProperty("os.arch").lowercase()
+        return when {
+            arch.contains("x86_64") -> "x86_64"
+            arch.contains("aarch64") -> "aarch64"
+            else -> error("Unsupported architecture: $arch")
+        }
+    }
 }
