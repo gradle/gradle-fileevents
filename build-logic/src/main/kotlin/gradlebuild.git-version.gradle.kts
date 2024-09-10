@@ -4,6 +4,10 @@ plugins {
     id("fr.brouillard.oss.gradle.jgitver")
 }
 
+jgitver {
+    nonQualifierBranches("main")
+}
+
 abstract class GitVersionExtension(
     val javaOutputDir: Provider<Directory>,
     val headerOutputDir: Provider<Directory>,
