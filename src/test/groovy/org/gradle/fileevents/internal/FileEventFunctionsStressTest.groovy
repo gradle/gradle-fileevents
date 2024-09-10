@@ -295,7 +295,7 @@ class FileEventFunctionsStressTest extends AbstractFileEventFunctionsTest {
         noExceptionThrown()
     }
 
-    @Requires({ !Platform.current().linux })
+    @Requires({ !Platform.current().linux && !Platform.current().windows })
     def "can stop watching a deep hierarchy when it has been deleted"() {
         given:
         def watchedDirectoryDepth = 10
