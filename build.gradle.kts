@@ -10,6 +10,7 @@ plugins {
     id("maven-publish")
     id("gradlebuild.git-version")
     id("gradlebuild.zig")
+    id("signing")
 }
 
 group = "org.gradle.fileevents"
@@ -195,6 +196,18 @@ publishing {
                     url = "https://github.com/gradle/gradle-fileevents"
                 }
             }
+        }
+    }
+}
+
+signing {
+    useInMemoryPgpKeys(
+        System.getenv("PGP_SIGNING_KEY"),
+        System.getenv("PGP_SIGNING_KEY_PASSPHRASE")
+    )
+    if (!System.getenv("PGP_SIGNING_KEY_PASSPHRASE").isNullOrBlank()) {
+        publishing.publications.configureEach {
+            signing.sign(this)
         }
     }
 }

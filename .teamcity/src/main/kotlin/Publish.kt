@@ -31,8 +31,10 @@ class Publish(build: Build, tests: TestTrigger) : BaseBuildType({
         param("env.GRADLE_INTERNAL_REPO_URL", "%gradle.internal.repository.url%")
         param("ARTIFACTORY_USERNAME", "%gradle.internal.repository.build-tool.publish.username%")
         password("ARTIFACTORY_PASSWORD", "%gradle.internal.repository.build-tool.publish.password%", display = ParameterDisplay.HIDDEN)
-        param("env.ORG_GRADLE_PROJECT_publishApiKey", "%ARTIFACTORY_PASSWORD%")
+        password("env.ORG_GRADLE_PROJECT_publishApiKey", "%ARTIFACTORY_PASSWORD%")
         param("env.ORG_GRADLE_PROJECT_publishUserName", "%ARTIFACTORY_USERNAME%")
+        param("env.PGP_SIGNING_KEY", "%pgpSigningKey%")
+        password("env.PGP_SIGNING_KEY_PASSPHRASE", "%pgpSigningPassphrase%")
     }
 
     steps {
