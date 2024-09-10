@@ -73,7 +73,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         downloadFile("https://ziglang.org/builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
         unpackTarXz(zigArchive, installDir)
         val executable = installDir.zigExecutablePath(zigVersion.get())
-        executable.setExecutable(true)
+        executable.setExecutable(true, false)
     }
 
     fun downloadFile(url: String, destination: File) {
