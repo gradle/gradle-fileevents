@@ -19,6 +19,7 @@ import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.Project
 import jetbrains.buildServer.configs.kotlin.RelativeId
 import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.ui.id
 
 class TestProject(
@@ -34,6 +35,13 @@ class TestProject(
             id = RelativeId("Test$agent")
 
             steps {
+                if (agent.container != null) {
+                    script {
+                        name = "Install Git"
+                        scriptContent = "apk update && apk add --no-cache git"
+                    }
+                }
+
                 gradle {
                     name = "Gradle externalTest"
                     tasks = "externalTest"
