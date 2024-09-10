@@ -35,6 +35,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
     val executablePath: Provider<String>
         get() = installDir.zip(zigVersion) { installDir, zigVersion ->
             val executable = installDir.asFile.zigExecutablePath(zigVersion)
+            println("Checking executable in path: $executable")
             if (executable.isFile) {
                 executable.absolutePath
             } else {
