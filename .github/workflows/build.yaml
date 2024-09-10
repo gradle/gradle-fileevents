@@ -56,23 +56,10 @@ jobs:
     needs: build
 
     steps:
-      # Without installing Git here the checkout has no .git directory on Alpine
-      - name: Install dependencies
-        if: matrix.os == 'alpine'
-        run: |
-          apk update
-          apk add --no-cache git
-
       - name: Checkout project sources
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # Without this the directory is not marked as safe on Alpine
-      - if: matrix.os == 'alpine'
-        name: Mark as safe directory
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Set up JDK
         if: matrix.os != 'alpine'
