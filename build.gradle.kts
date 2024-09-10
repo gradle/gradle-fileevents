@@ -146,7 +146,7 @@ fun toMavenVersion(gitVersion: String): Pair<String, Boolean> {
 
 val (mavenVersion, snapshot) = toMavenVersion(git.version.get())
 
-println("Publishing version $mavenVersion to ${if (snapshot) "snapshot" else "release"} repository (Git version: ${git.version.get()})")
+println("Building version $mavenVersion to ${if (snapshot) "snapshot" else "release"} repository (Git version: ${git.version.get()})")
 
 publishing {
     repositories {
@@ -154,10 +154,6 @@ publishing {
             val artifactoryUrl = providers.environmentVariable("GRADLE_INTERNAL_REPO_URL").orNull
             val artifactoryUsername = providers.environmentVariable("ORG_GRADLE_PROJECT_publishUserName").orNull
             val artifactoryPassword = providers.environmentVariable("ORG_GRADLE_PROJECT_publishApiKey").orNull
-
-            println("Artifactory URL: $artifactoryUrl")
-            println("Artifactory Username: $artifactoryUsername")
-            println("Artifactory Password: ${artifactoryPassword?.replace(".", "*")}")
 
             name = "remote"
             val libsType = if (snapshot) "snapshots" else "releases"
