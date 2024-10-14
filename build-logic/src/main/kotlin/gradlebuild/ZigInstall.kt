@@ -70,7 +70,11 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         cacheRoot.mkdirs()
         val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.tar.xz")
         // TODO Figure out OS and architecture
-        downloadFile("https://ziglang.org/builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+        if (zigVersion.get().contains('-')) {
+          downloadFile("https://ziglang.org/builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+        } else {
+          downloadFile("https://ziglang.org/download/${zigVersion.get()}/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+        }
         unpackTarXz(zigArchive, installDir)
         val executable = installDir.zigExecutablePath(zigVersion.get())
         executable.setExecutable(true, false)
