@@ -17,7 +17,7 @@
 import jetbrains.buildServer.configs.kotlin.Requirements
 
 enum class Agent(val os: Os, val architecture: Architecture, val container: String? = null, val optional: Boolean = false) {
-    AlpineLinuxAmd64(os = Os.Ubuntu22, architecture = Architecture.Amd64, container = "openjdk:17-alpine"),
+    AlpineLinuxAmd64(os = Os.Ubuntu22, architecture = Architecture.Amd64, container = "eclipse-temurin:17-alpine"),
     UbuntuAmd64(os = Os.Ubuntu16, architecture = Architecture.Amd64),
     UbuntuAarch64(os = Os.Ubuntu24, architecture = Architecture.Aarch64),
     CentOsAmd64(os = Os.CentOs, architecture = Architecture.Amd64),
