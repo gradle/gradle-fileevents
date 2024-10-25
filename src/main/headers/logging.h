@@ -8,15 +8,11 @@
 #define LOG_LEVEL_CHECK_INTERVAL_IN_MS 1000
 
 enum class LogLevel : int {
-    ALL,
-    FINEST,
-    FINER,
-    FINE,
-    CONFIG,
-    INFO,
-    WARNING,
-    SEVERE,
-    OFF
+    TRACE_LEVEL,
+    DEBUG_LEVEL,
+    INFO_LEVEL,
+    WARN_LEVEL,
+    ERROR_LEVEL,
 };
 
 class Logging : public JniSupport {

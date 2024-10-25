@@ -1,58 +1,51 @@
 package org.gradle.fileevents.internal;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 // Used from native
 @SuppressWarnings("unused")
 public class NativeLogger {
-    static final Logger LOGGER = Logger.getLogger(NativeLogger.class.getName());
+    static final Logger LOGGER = LoggerFactory.getLogger(NativeLogger.class);
 
     enum LogLevel {
-        ALL(Level.ALL),
-        FINEST(Level.FINEST),
-        FINER(Level.FINER),
-        FINE(Level.FINE),
-        CONFIG(Level.CONFIG),
-        INFO(Level.INFO),
-        WARNING(Level.WARNING),
-        SEVERE(Level.SEVERE),
-        OFF(Level.OFF);
+        TRACE(LOGGER::trace, LOGGER::isTraceEnabled),
+        DEBUG(LOGGER::debug, LOGGER::isDebugEnabled),
+        INFO(LOGGER::info, LOGGER::isInfoEnabled),
+        WARN(LOGGER::warn, LOGGER::isWarnEnabled),
+        ERROR(LOGGER::error, LOGGER::isErrorEnabled),
+        OFF(__ -> {}, () -> true);
 
-        private final Level delegate;
+        private final Consumer<String> logger;
+        private final Supplier<Boolean> isEnabled;
 
-        LogLevel(Level delegate) {
-            this.delegate = delegate;
+        LogLevel(Consumer<String> logger, Supplier<Boolean> isEnabled) {
+            this.logger = logger;
+            this.isEnabled = isEnabled;
         }
 
-        Level getLevel() {
-            return delegate;
+        Consumer<String> getLogger() {
+            return logger;
+        }
+
+        boolean isEnabled() {
+            return isEnabled.get();
         }
     }
 
     public static void log(int level, String message) {
-        LOGGER.log(LogLevel.values()[level].getLevel(), message);
+        LogLevel.values()[level].getLogger().accept(message);
     }
 
     public static int getLogLevel() {
-        Logger effectiveLogger = LOGGER;
-        Level effectiveLevel;
-        while (true) {
-            effectiveLevel = effectiveLogger.getLevel();
-            if (effectiveLevel != null) {
-                break;
-            }
-            effectiveLogger = effectiveLogger.getParent();
-            if (effectiveLogger == null) {
-                throw new AssertionError("Effective log level is not set");
-            }
-        }
-
-        for (LogLevel logLevel : LogLevel.values()) {
-            if (logLevel.getLevel().equals(effectiveLevel)) {
-                return logLevel.ordinal();
-            }
-        }
-        throw new AssertionError("Unknown effective log level found: " + effectiveLevel);
+        return Arrays.stream(LogLevel.values())
+            .filter(LogLevel::isEnabled)
+            .findFirst()
+            .map(LogLevel::ordinal)
+            .orElseThrow(() -> new AssertionError("Effective log level is not set"));
     }
 }

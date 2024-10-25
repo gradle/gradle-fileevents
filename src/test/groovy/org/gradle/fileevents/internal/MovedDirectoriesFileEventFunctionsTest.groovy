@@ -25,11 +25,11 @@ import java.nio.file.AccessDeniedException
 import java.nio.file.Files
 import java.util.regex.Pattern
 
-import static java.util.logging.Level.WARNING
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.CREATED
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.INVALIDATED
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.MODIFIED
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.REMOVED
+import static org.slf4j.event.Level.WARN
 
 @Unroll
 @Requires({ Platform.current().macOs || Platform.current().linux || Platform.current().windows })
@@ -86,7 +86,7 @@ class MovedDirectoriesFileEventFunctionsTest extends AbstractFileEventFunctionsT
         waitForChangeEventLatency()
         then:
         if (Platform.current().linux) {
-            expectLogMessage(WARNING, Pattern.compile("Unknown event 0x800 for ${Pattern.quote(watchedDirectory.absolutePath)}"))
+            expectLogMessage(WARN, Pattern.compile("Unknown event 0x800 for ${Pattern.quote(watchedDirectory.absolutePath)}"))
         }
         noExceptionThrown()
     }

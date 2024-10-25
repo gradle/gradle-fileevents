@@ -19,25 +19,24 @@ import net.rubygrapefruit.platform.NativeException
 import net.rubygrapefruit.platform.internal.Platform
 import org.gradle.fileevents.FileWatchEvent
 import org.junit.jupiter.api.Assumptions
+import org.slf4j.LoggerFactory
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 import spock.lang.Unroll
 
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
-import java.util.logging.Level
-import java.util.logging.Logger
 import java.util.regex.Pattern
 
 import static java.util.concurrent.TimeUnit.SECONDS
-import static java.util.logging.Level.INFO
-import static java.util.logging.Level.SEVERE
-import static java.util.logging.Level.WARNING
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.CREATED
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.MODIFIED
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.REMOVED
 import static org.gradle.fileevents.internal.AbstractFileEventFunctionsTest.PlatformType.OTHERWISE
 import static org.gradle.fileevents.internal.AbstractFileEventFunctionsTest.PlatformType.WINDOWS
+import static org.slf4j.event.Level.ERROR
+import static org.slf4j.event.Level.INFO
+import static org.slf4j.event.Level.TRACE
 
 @Unroll
 @Requires({ Platform.current().macOs || Platform.current().linux || Platform.current().windows })
@@ -422,7 +421,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         def ex = thrown NativeException
         ex.message ==~ /Couldn't add watch.*: ${Pattern.quote(missingDirectory.absolutePath)}/
 
-        expectLogMessage(SEVERE, Pattern.compile("Caught exception: Couldn't add watch.*: ${Pattern.quote(missingDirectory.absolutePath)}"))
+        expectLogMessage(ERROR, Pattern.compile("Caught exception: Couldn't add watch.*: ${Pattern.quote(missingDirectory.absolutePath)}"))
     }
 
     // Apparently on macOS and Windows we can watch files
@@ -439,7 +438,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         def ex = thrown NativeException
         ex.message ==~ /Couldn't add watch.*: ${Pattern.quote(file.absolutePath)}/
 
-        expectLogMessage(SEVERE, Pattern.compile("Caught exception: Couldn't add watch.*: ${Pattern.quote(file.absolutePath)}"))
+        expectLogMessage(ERROR, Pattern.compile("Caught exception: Couldn't add watch.*: ${Pattern.quote(file.absolutePath)}"))
     }
 
     def "fails when watching directory twice"() {
@@ -453,7 +452,7 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         def ex = thrown NativeException
         ex.message == "Already watching path: ${rootDir.absolutePath}"
 
-        expectLogMessage(SEVERE, "Caught exception: Already watching path: ${rootDir.absolutePath}")
+        expectLogMessage(ERROR, "Caught exception: Already watching path: ${rootDir.absolutePath}")
     }
 
     def "can un-watch path that was not watched"() {
@@ -693,33 +692,33 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
 
     def "can set log level by #action"() {
         given:
-        def nativeLogger = Logger.getLogger(NativeLogger.name)
+        def nativeLogger = LoggerFactory.getLogger(NativeLogger)
         def originalLevel = nativeLogger.level
         def fileChanged = new File(rootDir, "changed.txt")
         fileChanged.createNewFile()
 
         when:
         logging.clear()
-        nativeLogger.level = Level.FINEST
+        nativeLogger.level = ch.qos.logback.classic.Level.TRACE
         ensureLogLevelInvalidated(service)
         startWatcher(rootDir)
         fileChanged << "changed"
         waitForChangeEventLatency()
 
         then:
-        logging.messages.values().any { it == Level.FINE }
+        logging.messages.values().any { it == TRACE }
 
         when:
         shutdownWatcher()
         logging.clear()
-        nativeLogger.level = WARNING
+        nativeLogger.level = ch.qos.logback.classic.Level.WARN
         ensureLogLevelInvalidated(service)
         startWatcher()
         fileChanged << "changed again"
         waitForChangeEventLatency()
 
         then:
-        !logging.messages.values().any { it == Level.FINE }
+        !logging.messages.values().any { it == TRACE }
 
         cleanup:
         nativeLogger.level = originalLevel
@@ -745,15 +744,15 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
 
         then:
         expectLogMessage(INFO, "Event queue overflow, dropping all events")
-        expectLogMessage(SEVERE, "Couldn't queue event: OVERFLOW (EVENT_QUEUE) at null")
+        expectLogMessage(ERROR, "Couldn't queue event: OVERFLOW (EVENT_QUEUE) at null")
 
         when:
         shutdownWatcher(watcher)
 
         then:
         expectLogMessage(INFO, "Event queue overflow, dropping all events")
-        expectLogMessage(SEVERE, "Couldn't queue event: OVERFLOW (EVENT_QUEUE) at null")
-        expectLogMessage(SEVERE, "Couldn't queue event: TERMINATE")
+        expectLogMessage(ERROR, "Couldn't queue event: OVERFLOW (EVENT_QUEUE) at null")
+        expectLogMessage(ERROR, "Couldn't queue event: TERMINATE")
     }
 
     def "can handle watcher start timing out"() {
