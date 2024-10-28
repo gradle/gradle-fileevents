@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -37,8 +38,10 @@ public class NativeLogger {
         }
     }
 
+    private static final List<LogLevel> logLevels = Arrays.asList(LogLevel.values());
+
     public static void log(int level, String message) {
-        LogLevel.values()[level].getLogger().accept(message);
+        logLevels.get(level).getLogger().accept(message);
     }
 
     public static int getLogLevel() {
