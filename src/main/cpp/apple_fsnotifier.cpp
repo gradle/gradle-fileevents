@@ -177,12 +177,12 @@ static constexpr FSEventStreamEventFlags IGNORED_FLAGS = kFSEventStreamCreateFla
     | kFSEventStreamEventFlagItemCloned;
 
 void Server::handleEvent(JNIEnv* env, const char* path, FSEventStreamEventFlags flags, FSEventStreamEventId eventId) {
-    logToJava(LogLevel::FINE, "Event flags: 0x%x (ID %d) for '%s'", flags, eventId, path);
+    logToJava(LogLevel::TRACE_LEVEL, "Event flags: 0x%x (ID %d) for '%s'", flags, eventId, path);
 
     u16string pathStr = utf8ToUtf16String(path);
 
     if ((flags & ~IGNORED_FLAGS) == kFSEventStreamCreateFlagNone) {
-        logToJava(LogLevel::FINE, "Ignoring event 0x%x (ID %d) for '%s'", flags, eventId, path);
+        logToJava(LogLevel::TRACE_LEVEL, "Ignoring event 0x%x (ID %d) for '%s'", flags, eventId, path);
         return;
     }
 
@@ -216,7 +216,7 @@ void Server::handleEvent(JNIEnv* env, const char* path, FSEventStreamEventFlags 
     } else if (IS_SET(flags, kFSEventStreamEventFlagItemCreated)) {
         type = ChangeType::CREATED;
     } else {
-        logToJava(LogLevel::WARNING, "Unknown event 0x%x (ID %d) for '%s'", flags, eventId, path);
+        logToJava(LogLevel::WARN_LEVEL, "Unknown event 0x%x (ID %d) for '%s'", flags, eventId, path);
         reportUnknownEvent(env, pathStr);
         return;
     }
@@ -241,7 +241,7 @@ bool Server::unregisterPaths(const vector<u16string>& paths) {
     bool success = true;
     for (auto& path : paths) {
         if (watchPoints.erase(path) == 0) {
-            logToJava(LogLevel::INFO, "Path is not watched: %s", utf16ToUtf8String(path).c_str());
+            logToJava(LogLevel::INFO_LEVEL, "Path is not watched: %s", utf16ToUtf8String(path).c_str());
             success = false;
         }
     }

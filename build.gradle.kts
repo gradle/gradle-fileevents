@@ -18,8 +18,10 @@ group = "org.gradle.fileevents"
 dependencies {
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
     api("net.rubygrapefruit:native-platform:0.22-milestone-26")
+    implementation("org.slf4j:slf4j-api:1.7.36")
     testImplementation(platform("org.junit:junit-bom:5.11.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("ch.qos.logback:logback-classic:1.5.11")
 }
 
 java {

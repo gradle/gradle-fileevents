@@ -235,7 +235,7 @@ class FileEventFunctionsStressTest extends AbstractFileEventFunctionsTest {
             }) + (changedFiles.collect { changedFile ->
                 { ->
                     Thread.sleep((long) (Math.random() * 500))
-                    LOGGER.fine("> Creating ${changedFile.name}")
+                    LOGGER.trace("> Creating ${changedFile.name}")
                     changedFile.createNewFile()
                 } as Runnable
             })

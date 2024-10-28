@@ -134,7 +134,7 @@ public abstract class AbstractFileEventFunctions<W extends FileWatcher> implemen
         private void forceQueueEvent(FileWatchEvent event) {
             boolean eventPublished = eventQueue.offer(event);
             if (!eventPublished) {
-                NativeLogger.LOGGER.severe("Couldn't queue event: " + event);
+                NativeLogger.LOGGER.error("Couldn't queue event: " + event);
             }
         }
     }

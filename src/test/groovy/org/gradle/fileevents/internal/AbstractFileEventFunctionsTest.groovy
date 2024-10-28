@@ -23,7 +23,10 @@ import org.gradle.fileevents.FileWatchEvent
 import org.gradle.fileevents.FileWatchEvent.ChangeType
 import org.gradle.fileevents.FileWatchEvent.OverflowType
 import org.gradle.fileevents.FileWatcher
-import org.gradle.fileevents.testfixtures.JulLogging
+import org.gradle.fileevents.testfixtures.LoggingCapture
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
 import org.spockframework.util.Assert
 import org.spockframework.util.Nullable
 import spock.lang.Specification
@@ -35,8 +38,6 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import java.util.function.BooleanSupplier
 import java.util.function.Predicate
-import java.util.logging.Level
-import java.util.logging.Logger
 import java.util.regex.Pattern
 
 import static java.util.concurrent.TimeUnit.SECONDS
@@ -46,9 +47,9 @@ import static org.gradle.fileevents.internal.AbstractFileEventFunctionsTest.Even
 @Timeout(value = 10, unit = SECONDS)
 abstract class AbstractFileEventFunctionsTest extends Specification {
 
-    public static final Logger LOGGER = Logger.getLogger(AbstractFileEventFunctionsTest.name)
+    public static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileEventFunctionsTest)
 
-    JulLogging logging = new JulLogging(NativeLogger, Level.CONFIG)
+    LoggingCapture logging = new LoggingCapture(NativeLogger, Level.INFO)
 
     @TempDir
     File tmpDir
@@ -105,7 +106,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
         // Check if the logs (INFO and above) match our expectations
         if (expectedLogMessages != null) {
             Map<String, Level> unexpectedLogMessages = logging.messages
-                .findAll { message, level -> level.intValue() >= Level.INFO.intValue() }
+                .findAll { message, level -> level.toInt() >= Level.INFO.toInt() }
             def remainingExpectedLogMessages = new LinkedHashMap<Pattern, Level>(expectedLogMessages)
             unexpectedLogMessages.removeAll { message, level ->
                 remainingExpectedLogMessages.removeAll { expectedMessage, expectedLevel ->
@@ -212,7 +213,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
                 Thread.sleep(50)
             }
         },
-        UNSUPPORTED() {
+        UNSUPPORTED(){
             @Override
             AbstractFileEventFunctions getService() {
                 throw new UnsupportedOperationException()
@@ -271,6 +272,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
 
     private interface ExpectedEvent {
         boolean matches(FileWatchEvent event)
+
         boolean isOptional()
     }
 
@@ -413,7 +415,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
         eventQueue.drainTo(receivedEvents)
         Assert.that(
             receivedEvents.empty,
-            createEventFailure(receivedEvents.collectEntries { event -> [event, UNEXPECTED]}, [])
+            createEventFailure(receivedEvents.collectEntries { event -> [event, UNEXPECTED] }, [])
         )
     }
 
@@ -613,25 +615,25 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
     }
 
     protected static enum PlatformType {
-        LINUX() {
+        LINUX(){
             @Override
             boolean matches(Platform platform) {
                 return platform.linux
             }
         },
-        MAC_OS() {
+        MAC_OS(){
             @Override
             boolean matches(Platform platform) {
                 return platform.macOs
             }
         },
-        WINDOWS() {
+        WINDOWS(){
             @Override
             boolean matches(Platform platform) {
                 return platform.windows
             }
         },
-        OTHERWISE() {
+        OTHERWISE(){
             @Override
             boolean matches(Platform platform) {
                 return true
