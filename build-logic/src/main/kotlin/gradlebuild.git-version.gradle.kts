@@ -6,6 +6,8 @@ plugins {
 
 jgitver {
     nonQualifierBranches("main")
+    useDistance(false)
+    useSnapshot(true)
 }
 
 abstract class GitVersionExtension(
