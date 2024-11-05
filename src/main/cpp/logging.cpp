@@ -5,24 +5,7 @@
 Logging::Logging(JavaVM* jvm)
     : JniSupport(jvm)
     , clsLogger(getThreadEnv(), "org/gradle/fileevents/internal/NativeLogger")
-    , logMethod(getThreadEnv()->GetStaticMethodID(clsLogger.get(), "log", "(ILjava/lang/String;)V"))
-    , getLevelMethod(getThreadEnv()->GetStaticMethodID(clsLogger.get(), "getLogLevel", "()I")) {
-}
-
-void Logging::invalidateLogLevelCache() {
-    lastLevelCheck = chrono::steady_clock::time_point();
-}
-
-bool Logging::enabled(LogLevel level) {
-    auto current = chrono::steady_clock::now();
-    auto elapsed = chrono::duration_cast<chrono::milliseconds>(current - lastLevelCheck).count();
-    if (elapsed > LOG_LEVEL_CHECK_INTERVAL_IN_MS) {
-        JNIEnv* env = getThreadEnv();
-        minimumLogLevel = env->CallStaticIntMethod(clsLogger.get(), getLevelMethod);
-        rethrowJavaException(env);
-        lastLevelCheck = current;
-    }
-    return minimumLogLevel <= static_cast<int>(level);
+    , logMethod(getThreadEnv()->GetStaticMethodID(clsLogger.get(), "log", "(ILjava/lang/String;)V")) {
 }
 
 void Logging::send(LogLevel level, const char* fmt, ...) {
