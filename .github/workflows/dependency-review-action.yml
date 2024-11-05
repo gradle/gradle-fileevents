@@ -7,6 +7,9 @@ on:
 permissions:
   contents: write
 
+env:
+  DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+
 jobs:
   dependency-submission:
     runs-on: ubuntu-latest
@@ -19,8 +22,6 @@ jobs:
 
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
-      with:
-        build-scan-publish: false
 
     - name: Perform dependency review
       uses: actions/dependency-review-action@v4
