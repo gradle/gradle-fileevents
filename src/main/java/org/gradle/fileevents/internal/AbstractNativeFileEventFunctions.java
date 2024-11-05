@@ -12,16 +12,6 @@ public abstract class AbstractNativeFileEventFunctions<W extends FileWatcher> ex
 
     private static native String getVersion0();
 
-    /**
-     * Forces the native backend to drop the cached SLF4J log level and thus
-     * re-query it the next time it tries to log something to the Java side.
-     */
-    public void invalidateLogLevelCache() {
-        invalidateLogLevelCache0();
-    }
-
-    private native void invalidateLogLevelCache0();
-
     protected static abstract class NativeFileWatcher extends AbstractFileWatcher {
         protected final Object server;
 

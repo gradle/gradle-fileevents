@@ -174,15 +174,6 @@ Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_00024Native
     }
 }
 
-JNIEXPORT void JNICALL
-Java_org_gradle_fileevents_internal_AbstractNativeFileEventFunctions_invalidateLogLevelCache0(JNIEnv* env, jobject) {
-    try {
-        logging->invalidateLogLevelCache();
-    } catch (const exception& e) {
-        rethrowAsJavaException(env, e);
-    }
-}
-
 NativePlatformJniConstants::NativePlatformJniConstants(JavaVM* jvm)
     : JniSupport(jvm)
     , nativeExceptionClass(getThreadEnv(), "net/rubygrapefruit/platform/NativeException") {

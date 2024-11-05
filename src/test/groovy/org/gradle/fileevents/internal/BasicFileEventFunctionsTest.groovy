@@ -690,9 +690,10 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         "URL-quoted"     | "test%<directory>#2.txt" | !Platform.current().windows
     }
 
-    def "can set log level by #action"() {
+    @SuppressWarnings('UnnecessaryQualifiedReference')
+    def "can set log level"() {
         given:
-        def nativeLogger = LoggerFactory.getLogger(NativeLogger)
+        def nativeLogger = LoggerFactory.getLogger(NativeLogger) as ch.qos.logback.classic.Logger
         def originalLevel = nativeLogger.level
         def fileChanged = new File(rootDir, "changed.txt")
         fileChanged.createNewFile()
@@ -700,7 +701,6 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         when:
         logging.clear()
         nativeLogger.level = ch.qos.logback.classic.Level.TRACE
-        ensureLogLevelInvalidated(service)
         startWatcher(rootDir)
         fileChanged << "changed"
         waitForChangeEventLatency()
@@ -712,7 +712,6 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         shutdownWatcher()
         logging.clear()
         nativeLogger.level = ch.qos.logback.classic.Level.WARN
-        ensureLogLevelInvalidated(service)
         startWatcher()
         fileChanged << "changed again"
         waitForChangeEventLatency()
@@ -722,11 +721,6 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
 
         cleanup:
         nativeLogger.level = originalLevel
-
-        where:
-        action                                    | ensureLogLevelInvalidated
-        "invalidating the log level cache"        | { AbstractFileEventFunctions service -> service.invalidateLogLevelCache() }
-        "waiting for log level cache to time out" | { Thread.sleep(1500) }
     }
 
     def "handles queue not able to take any events"() {

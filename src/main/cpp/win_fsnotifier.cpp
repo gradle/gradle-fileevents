@@ -3,14 +3,26 @@
 #include "win_fsnotifier.h"
 #include "command.h"
 
-#include <codecvt>
 #include <locale>
 
 using namespace std;
 
-string wideToUtf8String(const wstring& string) {
-    wstring_convert<deletable_facet<codecvt<wchar_t, char, mbstate_t>>, wchar_t> conv;
-    return conv.to_bytes(string);
+string wideToUtf8String(const wstring& wstr) {
+    if (wstr.empty()) return std::string();
+
+    int utf8Size = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
+    if (utf8Size == 0) {
+        return std::string("INVALID_UTF8");
+    }
+
+    std::string utf8Str(utf8Size, '\0');
+
+    int result = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.size()), &utf8Str[0], utf8Size, nullptr, nullptr);
+    if (result == 0) {
+        return std::string("INVALID_UTF8");
+    }
+
+    return utf8Str;
 }
 
 #define wideToUtf16String(string) (u16string((string).begin(), (string).end()))
