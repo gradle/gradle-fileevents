@@ -26,7 +26,6 @@ pub fn build(b: *std.Build) void {
         "-Wextra",
         "-Wformat=2",
         "-Werror",
-        "-Wno-deprecated-declarations",
         "-Wno-format-nonliteral",
         "-Wno-unguarded-availability-new",
     };
