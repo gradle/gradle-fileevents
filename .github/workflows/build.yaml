@@ -47,7 +47,7 @@ jobs:
         os: [ ubuntu-20.04, ubuntu-latest, macos-13, macos-latest, windows-2019, windows-latest, alpine ]
         include:
             - os: alpine
-              container: openjdk:17-alpine
+              container: eclipse-temurin:17-alpine
       fail-fast: false
     runs-on: ${{ matrix.os == 'alpine' && 'ubuntu-latest' || matrix.os }}
     container: ${{ matrix.container }}
