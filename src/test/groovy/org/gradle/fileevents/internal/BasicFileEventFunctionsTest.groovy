@@ -28,7 +28,6 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
-import static java.util.concurrent.TimeUnit.SECONDS
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.CREATED
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.MODIFIED
 import static org.gradle.fileevents.FileWatchEvent.ChangeType.REMOVED
@@ -747,15 +746,6 @@ class BasicFileEventFunctionsTest extends AbstractFileEventFunctionsTest {
         expectLogMessage(INFO, "Event queue overflow, dropping all events")
         expectLogMessage(ERROR, "Couldn't queue event: OVERFLOW (EVENT_QUEUE) at null")
         expectLogMessage(ERROR, "Couldn't queue event: TERMINATE")
-    }
-
-    def "can handle watcher start timing out"() {
-        when:
-        service.newWatcher(eventQueue).start(0, SECONDS)
-
-        then:
-        def ex = thrown AbstractFileEventFunctions.FileWatcherTimeoutException
-        ex.message == "Starting the watcher timed out"
     }
 
     @IgnoreIf(value = { Platform.current().windows }, reason = "Windows 2019 Server does not handle this")

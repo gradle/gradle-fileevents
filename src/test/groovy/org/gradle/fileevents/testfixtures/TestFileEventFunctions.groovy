@@ -23,12 +23,18 @@ import java.util.concurrent.LinkedBlockingQueue
 
 class TestFileEventFunctions extends AbstractFileEventFunctions<TestFileWatcher> {
 
+    private final Closure initRunLoop
+
+    TestFileEventFunctions(Closure initRunLoop = {}) {
+        this.initRunLoop = initRunLoop
+    }
+
     @Override
     WatcherBuilder newWatcher(BlockingQueue<FileWatchEvent> eventQueue) {
         new WatcherBuilder(eventQueue)
     }
 
-    static class TestFileWatcher extends AbstractFileEventFunctions.AbstractFileWatcher {
+    class TestFileWatcher extends AbstractFileEventFunctions.AbstractFileWatcher {
         enum Command {
             FAIL, TERMINATE
         }
@@ -41,6 +47,7 @@ class TestFileEventFunctions extends AbstractFileEventFunctions<TestFileWatcher>
 
         @Override
         protected void initializeRunLoop() {
+            initRunLoop.call()
         }
 
         @Override
@@ -66,7 +73,7 @@ class TestFileEventFunctions extends AbstractFileEventFunctions<TestFileWatcher>
 
         @Override
         protected boolean awaitTermination(long timeoutInMillis) {
-            return true;
+            return true
         }
 
         @Override
@@ -80,7 +87,7 @@ class TestFileEventFunctions extends AbstractFileEventFunctions<TestFileWatcher>
         }
     }
 
-    static class WatcherBuilder extends AbstractFileEventFunctions.AbstractWatcherBuilder<TestFileWatcher> {
+    class WatcherBuilder extends AbstractFileEventFunctions.AbstractWatcherBuilder<TestFileWatcher> {
         WatcherBuilder(BlockingQueue<FileWatchEvent> eventQueue) {
             super(eventQueue)
         }
