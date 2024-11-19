@@ -25,7 +25,7 @@ jobs:
       - name: Setup Zig
         uses: goto-bus-stop/setup-zig@v2
         with:
-          version: '0.14.0-dev.1911+3bf89f55c'
+          version: '0.14.0-dev.2254+73f2671c7'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4

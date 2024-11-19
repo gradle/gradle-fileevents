@@ -18,7 +18,6 @@ utilizes [Zig](https://ziglang.org/) to cross-compile the C/C++ code.
 ### Prerequisites
 
 - [JDK 17](https://adoptopenjdk.net/)
-- [Zig nightly](https://ziglang.org/download/) (tested on `0.14.0-dev.1224+16d74809d`)
 
 The project currently requires macOS to link to the SDK. It also depends on JDK to be specifically for Darwin. Both of
 these limitations should be removable with some legwork in the future.
