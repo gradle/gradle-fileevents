@@ -33,6 +33,9 @@ java {
     // Consumers require Java 8 compatibility
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+
+    withSourcesJar()
+    withJavadocJar()
 }
 
 // Define a custom configuration that only includes the test sources
@@ -80,9 +83,9 @@ testing {
     }
 }
 
-// Apply
 tasks.javadoc {
     exclude("**/internal/**")
+    (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
 }
 
 val compileJava by tasks.named("compileJava", JavaCompile::class) {
