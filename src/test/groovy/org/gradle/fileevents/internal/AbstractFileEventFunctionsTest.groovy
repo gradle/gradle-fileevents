@@ -84,6 +84,8 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
         assert rootDir.mkdirs()
         uncaughtFailureOnThread = []
         expectedLogMessages = [:]
+
+        FileEvents.init(null)
     }
 
     def cleanup() {
