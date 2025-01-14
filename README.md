@@ -43,3 +43,15 @@ To run tests with the library built on another machine, place the JAR in `build/
 ```shell
 ./gradlew externalTest
 ```
+
+### Releasing
+
+Add an annotated tag, such as:
+
+```shell
+git tag -a 0.2.6
+```
+
+Then run https://builds.gradle.org/buildConfiguration/Gradle_Fileevents_Publish with the tag.
+
+Make sure to update GitHub's release page.
