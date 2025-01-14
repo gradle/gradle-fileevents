@@ -20,10 +20,14 @@ import java.util.Map;
 @ThreadSafe
 public class FileEvents {
     private static final Map<Class<?>, Object> integrations = new HashMap<>();
+    private static boolean initialized;
 
     @ThreadSafe
     static public void init(File extractDir) throws NativeException {
         synchronized (FileEvents.class) {
+            if (initialized) {
+                return;
+            }
             Platform platform = Platform.current();
             String platformName = getPlatformName(platform);
             try {
@@ -33,6 +37,7 @@ public class FileEvents {
                     throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
                 }
                 System.load(library.getCanonicalPath());
+                initialized = true;
 
                 String nativeVersion = AbstractNativeFileEventFunctions.getVersion();
                 if (!nativeVersion.equals(FileEventsVersion.VERSION)) {
@@ -115,8 +120,10 @@ public class FileEvents {
     @ThreadSafe
     public static <T extends NativeIntegration> T get(Class<T> type)
         throws NativeIntegrationUnavailableException, NativeException {
-        init(null);
         synchronized (FileEvents.class) {
+            if (!initialized) {
+                throw new NativeException(String.format("File-system watching native library has not been initialized.", type.getSimpleName()));
+            }
             Platform platform = Platform.current();
             Object instance = integrations.get(type);
             if (instance == null) {
