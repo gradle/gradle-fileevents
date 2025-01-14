@@ -17,11 +17,23 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Provides access to the native file events integration.
+ */
 @ThreadSafe
 public class FileEvents {
     private static final Map<Class<?>, Object> integrations = new HashMap<>();
     private static boolean initialized;
 
+    /**
+     * Initializes the native file events integration.
+     * <p>
+     * Must be called before calling {@link #get(Class)}.
+     *
+     * @param extractDir The directory to extract the native library to and load them from.
+     * @throws NativeIntegrationUnavailableException When the native integration is not available on the current platform.
+     * @throws NativeException                       On failure to initialize the native integration.
+     */
     @ThreadSafe
     static public void init(File extractDir) throws NativeException {
         synchronized (FileEvents.class) {
@@ -112,6 +124,8 @@ public class FileEvents {
     /**
      * Locates a native integration of the given type.
      *
+     * @param type The type of native integration to locate.
+     * @param <T>  The type of native integration to locate.
      * @return The native integration. Never returns null.
      * @throws NativeIntegrationUnavailableException When the given native integration is not available on the current
      *                                               machine.
