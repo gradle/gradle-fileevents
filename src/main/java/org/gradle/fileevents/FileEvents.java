@@ -22,8 +22,12 @@ import java.util.Map;
  */
 @ThreadSafe
 public class FileEvents {
-    private static final Map<Class<?>, Object> integrations = new HashMap<>();
-    private static boolean initialized;
+    private static FileEvents instance;
+
+    private final Map<Class<?>, Object> integrations = new HashMap<>();
+
+    private FileEvents() {
+    }
 
     /**
      * Initializes the native file events integration.
@@ -35,10 +39,10 @@ public class FileEvents {
      * @throws NativeException                       On failure to initialize the native integration.
      */
     @ThreadSafe
-    static public void init(File extractDir) throws NativeException {
+    static public FileEvents init(File extractDir) throws NativeException {
         synchronized (FileEvents.class) {
-            if (initialized) {
-                return;
+            if (instance != null) {
+                throw new NativeException("File-system watching native library has already been initialized.");
             }
             Platform platform = Platform.current();
             String platformName = getPlatformName(platform);
@@ -49,7 +53,6 @@ public class FileEvents {
                     throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
                 }
                 System.load(library.getCanonicalPath());
-                initialized = true;
 
                 String nativeVersion = AbstractNativeFileEventFunctions.getVersion();
                 if (!nativeVersion.equals(FileEventsVersion.VERSION)) {
@@ -59,6 +62,9 @@ public class FileEvents {
                         nativeVersion
                     ));
                 }
+
+                instance = new FileEvents();
+                return instance;
             } catch (NativeException e) {
                 throw e;
             } catch (Throwable t) {
@@ -132,12 +138,9 @@ public class FileEvents {
      * @throws NativeException                       On failure to load the native integration.
      */
     @ThreadSafe
-    public static <T extends NativeIntegration> T get(Class<T> type)
+    public <T extends NativeIntegration> T get(Class<T> type)
         throws NativeIntegrationUnavailableException, NativeException {
-        synchronized (FileEvents.class) {
-            if (!initialized) {
-                throw new NativeException(String.format("File-system watching native library has not been initialized.", type.getSimpleName()));
-            }
+        synchronized (this) {
             Platform platform = Platform.current();
             Object instance = integrations.get(type);
             if (instance == null) {
