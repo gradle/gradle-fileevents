@@ -33,6 +33,8 @@ import spock.lang.Specification
 import spock.lang.TempDir
 import spock.lang.Timeout
 
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
@@ -50,6 +52,18 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
     public static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileEventFunctionsTest)
 
     LoggingCapture logging = new LoggingCapture(NativeLogger, Level.INFO)
+
+    private static FileEvents fileEventsIntegration
+
+    protected static FileEvents getFileEvents() {
+        if (fileEventsIntegration == null) {
+            def testOutputDir = Paths.get("build/test-outputs")
+            Files.createDirectories(testOutputDir)
+            def tempDir = Files.createTempDirectory(testOutputDir, "file-events")
+            fileEventsIntegration = FileEvents.init(tempDir.toFile())
+        }
+        return fileEventsIntegration
+    }
 
     @TempDir
     File tmpDir
@@ -84,8 +98,6 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
         assert rootDir.mkdirs()
         uncaughtFailureOnThread = []
         expectedLogMessages = [:]
-
-        FileEvents.init(null)
     }
 
     def cleanup() {
@@ -152,7 +164,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
             @Memoized
             @Override
             OsxFileEventFunctions getService() {
-                FileEvents.get(OsxFileEventFunctions)
+                AbstractFileEventFunctionsTest.getFileEvents().get(OsxFileEventFunctions)
             }
 
             @Override
@@ -173,7 +185,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
             @Memoized
             @Override
             LinuxFileEventFunctions getService() {
-                FileEvents.get(LinuxFileEventFunctions)
+                AbstractFileEventFunctionsTest.getFileEvents().get(LinuxFileEventFunctions)
             }
 
             @Override
@@ -193,7 +205,7 @@ abstract class AbstractFileEventFunctionsTest extends Specification {
             @Memoized
             @Override
             WindowsFileEventFunctions getService() {
-                FileEvents.get(WindowsFileEventFunctions)
+                AbstractFileEventFunctionsTest.getFileEvents().get(WindowsFileEventFunctions)
             }
 
             @Override
