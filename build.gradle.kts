@@ -101,7 +101,7 @@ sourceSets {
 }
 
 zig {
-    zigVersion = "0.14.0-dev.3239+d7b93c787"
+    zigVersion = "0.14.0"
     outputDir = layout.buildDirectory.dir("zig")
     targets {
         create("x86_64-linux-gnu")
