@@ -5,7 +5,6 @@
 #include <locale>
 #include <string>
 #include <sys/ioctl.h>
-#include <sys/time.h>
 #include <unistd.h>
 
 #include "linux_fsnotifier.h"
@@ -112,31 +111,25 @@ void Server::runLoop() {
 }
 
 void Server::processQueues(int timeout) {
-    // Initialize the file descriptor sets
-    fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(shutdownEvent.fd, &readfds);
-    FD_SET(inotify->fd, &readfds);
+    struct pollfd fds[2];
+    fds[0].fd = shutdownEvent.fd;
+    fds[1].fd = inotify->fd;
+    fds[0].events = POLLIN;
+    fds[1].events = POLLIN;
 
-    int maxfd = std::max(shutdownEvent.fd, inotify->fd) + 1;
-
-    struct timeval tv;
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
-
-    int ret = select(maxfd, &readfds, nullptr, nullptr, &tv);
+    int ret = poll(fds, 2, timeout);
     if (ret == -1) {
-        throw FileWatcherException("Couldn't select for events", errno);
+        throw FileWatcherException("Couldn't poll for events", errno);
     }
 
-    if (FD_ISSET(shutdownEvent.fd, &readfds)) {
+    if (IS_SET(fds[0].revents, POLLIN)) {
         shutdownEvent.consume();
         // Ignore counter, we only care about the notification itself
         shouldTerminate = true;
         return;
     }
 
-    if (FD_ISSET(inotify->fd, &readfds)) {
+    if (IS_SET(fds[1].revents, POLLIN)) {
         try {
             handleEvents();
         } catch (const exception& ex) {
@@ -372,8 +365,8 @@ void Server::stopWatchingMovedPaths(jobjectArray absolutePathsToCheck, jobject d
 }
 
 void Server::addToList(JNIEnv* env, jobject jList, jstring jString) {
-    env->CallBooleanMethod(jList, listAddMethod, jString);
-    throwNativeExceptionWhenJavaExceptionOccurred(env);
+        env->CallBooleanMethod(jList, listAddMethod, jString);
+        throwNativeExceptionWhenJavaExceptionOccurred(env);
 }
 
 JNIEXPORT jobject JNICALL
