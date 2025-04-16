@@ -128,6 +128,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         val arch = System.getProperty("os.arch").lowercase()
         return when {
             arch.contains("x86_64") -> "x86_64"
+            arch.contains("amd64") -> "x86_64"
             arch.contains("aarch64") -> "aarch64"
             else -> error("Unsupported architecture: $arch")
         }

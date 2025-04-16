@@ -26,6 +26,9 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
     @get:Internal
     abstract val executablePath: Property<String>
 
+    @get:Input
+    abstract val zigVersion: Property<String>
+
     @get:Internal
     abstract val workingDirectory: DirectoryProperty
 
