@@ -51,6 +51,7 @@ jobs:
           - macos-latest
           - windows-2019
           - windows-latest
+          - windows-11-arm
           - alpine
         include:
             - os: alpine
