@@ -55,8 +55,13 @@ pub fn build(b: *std.Build) void {
     });
 
     // Link against libc and libstdc++
-    lib.linkLibC();
     lib.linkLibCpp();
+
+    // Link libc unless on Linux; this preserves compatibility with Ubunty 16.04
+    if (target.result.os.tag != .linux) {
+        // We don't link libc
+        lib.linkLibC();
+    }
 
     if (target.result.os.tag == .macos) {
         lib.linkFramework("CoreFoundation");
