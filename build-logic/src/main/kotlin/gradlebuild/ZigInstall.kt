@@ -18,7 +18,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.net.URL
+import java.net.URI
 import javax.inject.Inject
 
 abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) : DefaultTask() {
@@ -69,11 +69,12 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         val cacheRoot = cacheDir.get().asFile
         cacheRoot.mkdirs()
         val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.tar.xz")
+        val baseUrl = "https://repo.gradle.org/artifactory/ziglang/" // https://ziglang.org/
         // TODO Figure out OS and architecture
         if (zigVersion.get().contains('-')) {
-          downloadFile("https://ziglang.org/builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+          downloadFile("${baseUrl}builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
         } else {
-          downloadFile("https://ziglang.org/download/${zigVersion.get()}/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+          downloadFile("${baseUrl}download/${zigVersion.get()}/${zigName(zigVersion.get())}.tar.xz", zigArchive)
         }
         unpackTarXz(zigArchive, installDir)
         val executable = installDir.zigExecutablePath(zigVersion.get())
@@ -81,7 +82,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
     }
 
     fun downloadFile(url: String, destination: File) {
-        URL(url).openStream().use { input ->
+        URI(url).toURL().openStream().use { input ->
             FileOutputStream(destination).use { output ->
                 input.copyTo(output)
             }
