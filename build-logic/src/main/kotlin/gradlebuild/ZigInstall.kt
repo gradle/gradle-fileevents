@@ -113,7 +113,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         resolve("${zigName(version)}/zig")
 
     private fun zigName(zigVersion: String) =
-        "zig-${os()}-${arch()}-${zigVersion}"
+        "zig-${arch()}-${os()}-${zigVersion}"
 
     private fun os(): String {
         val os = System.getProperty("os.name").lowercase()
