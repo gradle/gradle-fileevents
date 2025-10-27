@@ -28,7 +28,7 @@ jobs:
       - run: ./gradlew assemble
 
       - name: Upload library
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: library
           path: build/libs/
@@ -82,7 +82,7 @@ jobs:
           ./gradlew externalTest
 
       - name: Upload build reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: test-reports-${{ matrix.os }}
