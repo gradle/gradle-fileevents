@@ -72,7 +72,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Download library
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: library
           path: build/remote/
