@@ -19,8 +19,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: microsoft # Because that's what is available on ARM windows; 'zulu' would also be an option.
+          java-version: 17
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -47,8 +47,8 @@ jobs:
           - windows-11-arm
           - alpine
         include:
-            - os: alpine
-              container: eclipse-temurin:17-alpine
+          - os: alpine
+            container: eclipse-temurin:17-alpine
       fail-fast: false
     runs-on: ${{ matrix.os == 'alpine' && 'ubuntu-latest' || matrix.os }}
     container: ${{ matrix.container }}
@@ -65,8 +65,8 @@ jobs:
         if: matrix.os != 'alpine'
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: microsoft # Because that's what is available on ARM windows; 'zulu' would also be an option.
+          java-version: 17
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
