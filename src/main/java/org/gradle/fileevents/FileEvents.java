@@ -35,6 +35,7 @@ public class FileEvents {
      * Must be called before calling {@link #get(Class)}.
      *
      * @param extractDir The directory to extract the native library to and load them from.
+     * @return The initialized FileEvents instance.
      * @throws NativeIntegrationUnavailableException When the native integration is not available on the current platform.
      * @throws NativeException                       On failure to initialize the native integration.
      */
