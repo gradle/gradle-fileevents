@@ -1,7 +1,5 @@
-import jetbrains.buildServer.configs.kotlin.*
-import jetbrains.buildServer.configs.kotlin.buildFeatures.perfmon
-import jetbrains.buildServer.configs.kotlin.triggers.vcs
-import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
+import jetbrains.buildServer.configs.kotlin.project
+import jetbrains.buildServer.configs.kotlin.version
 
 /*
 The settings script is an entry point for defining a TeamCity
@@ -19,13 +17,13 @@ To debug settings scripts in command-line, run the
 
 command and attach your debugger to the port 8000.
 
-To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
+To debug in IntelliJ IDEA, open the 'Maven Projects' tool window (View
 -> Tool Windows -> Maven Projects), find the generate task node
 (Plugins -> teamcity-configs -> teamcity-configs:generate), the
 'Debug' option is available in the context menu for the task.
 */
 
-version = "2025.03"
+version = "2025.11"
 
 project {
     RootProject(this)
