@@ -18,6 +18,7 @@ import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.FailureAction
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
+import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
 class TestTrigger(
@@ -36,10 +37,7 @@ class TestTrigger(
             triggerRules = """
                 +:.
             """.trimIndent()
-
-            perCheckinTriggering = true
-            enableQueueOptimization = false
-            enabled = true
+            quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
         }
     }
 
