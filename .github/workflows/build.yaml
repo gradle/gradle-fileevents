@@ -6,9 +6,13 @@ on:
 env:
   DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
 
+permissions: {}
+
 jobs:
   build:
     runs-on: macos-14
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout project sources
@@ -54,6 +58,9 @@ jobs:
     container: ${{ matrix.container }}
 
     needs: build
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout project sources
