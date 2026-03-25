@@ -44,7 +44,9 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-latest
-          - macos-13
+          - ubuntu-24.04-arm
+          - macos-14
+          - macos-15
           - macos-latest
           - windows-2022
           - windows-latest
@@ -84,9 +86,7 @@ jobs:
           name: library
           path: build/remote/
 
-      - name: Test
-        run: |
-          ./gradlew externalTest
+      - run: ./gradlew externalTest
 
       - name: Upload build reports
         uses: actions/upload-artifact@v7
