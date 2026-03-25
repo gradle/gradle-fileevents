@@ -1,0 +1,20 @@
+name: Download and submit dependency graph
+
+on:
+  workflow_run:
+    workflows: [ 'Generate and save dependency graph' ]
+    types: [ completed ]
+
+permissions: {}
+
+jobs:
+  submit-dependency-graph:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download and submit dependency graph
+        uses: gradle/actions/dependency-submission@v6
+        with:
+          dependency-graph: download-and-submit # Download saved dependency-graph and submit

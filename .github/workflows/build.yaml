@@ -6,9 +6,13 @@ on:
 env:
   DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
 
+permissions: {}
+
 jobs:
   build:
     runs-on: macos-14
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout project sources
@@ -40,7 +44,9 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-latest
-          - macos-13
+          - ubuntu-24.04-arm
+          - macos-14
+          - macos-15
           - macos-latest
           - windows-2022
           - windows-latest
@@ -54,6 +60,9 @@ jobs:
     container: ${{ matrix.container }}
 
     needs: build
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout project sources
@@ -77,9 +86,7 @@ jobs:
           name: library
           path: build/remote/
 
-      - name: Test
-        run: |
-          ./gradlew externalTest
+      - run: ./gradlew externalTest
 
       - name: Upload build reports
         uses: actions/upload-artifact@v7
