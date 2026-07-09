@@ -17,8 +17,8 @@
 import jetbrains.buildServer.configs.kotlin.Requirements
 
 enum class Agent(val os: Os, val architecture: Architecture, val container: String? = null, val optional: Boolean = false) {
-    AlpineLinuxAmd64(os = Os.Ubuntu22, architecture = Architecture.Amd64, container = "eclipse-temurin:17-alpine"),
-    UbuntuAmd64(os = Os.Ubuntu16, architecture = Architecture.Amd64),
+    AlpineLinuxAmd64(os = Os.Ubuntu24, architecture = Architecture.Amd64, container = "eclipse-temurin:17-alpine"),
+    UbuntuAmd64(os = Os.Ubuntu24, architecture = Architecture.Amd64),
     UbuntuAarch64(os = Os.Ubuntu24, architecture = Architecture.Aarch64),
     CentOsAmd64(os = Os.CentOs, architecture = Architecture.Amd64),
     WindowsAmd64(os = Os.Windows, architecture = Architecture.Amd64),
@@ -29,10 +29,6 @@ enum class Agent(val os: Os, val architecture: Architecture, val container: Stri
 interface Os {
     fun addAgentRequirements(requirements: Requirements)
     val osType: String
-
-    object Ubuntu16 : Ubuntu(16)
-
-    object Ubuntu22 : Ubuntu(22) // Ubuntu 22.04 LTS + Docker
 
     object Ubuntu24 : Ubuntu(24)
 
