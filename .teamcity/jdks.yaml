@@ -1,37 +1,37 @@
-version: "v1"
+version: 'v1'
 jdks:
   - params:
-      - "linux.java17.openjdk.64bit"
-    os: "linux"
-    arch: "amd64"
-    vendor: "temurin"
-    version: "jdk-17.0.19+10"
-    sha256: "d8afc263758141a66e0e3aafc321e783f7016696f4eaea067d340a269037d331"
+      - 'linux.java17.openjdk.64bit'
+    os: 'linux'
+    arch: 'amd64'
+    vendor: 'temurin'
+    version: 'jdk-17.0.20+8'
+    sha256: 'be7668bc030d578b83d6d5ef9221d6d6729bbbca8cf94a7d52e16ac68b5a5a35'
   - params:
-      - "linux.java17.openjdk.aarch64"
-    os: "linux"
-    arch: "aarch64"
-    vendor: "temurin"
-    version: "jdk-17.0.19+10"
-    sha256: "83a52172678ec8975164648654869cb2e71d7c748b47aca94b29bbfa10c18e81"
+      - 'linux.java17.openjdk.aarch64'
+    os: 'linux'
+    arch: 'aarch64'
+    vendor: 'temurin'
+    version: 'jdk-17.0.19+10'
+    sha256: '83a52172678ec8975164648654869cb2e71d7c748b47aca94b29bbfa10c18e81'
   - params:
-      - "windows.java17.openjdk.64bit"
-    os: "windows"
-    arch: "amd64"
-    vendor: "temurin"
-    version: "jdk-17.0.19+10"
-    sha256: "b5b235c48adf6a081874b812c630b9f4b5f637b7a5ed18b9174d08a41ec4c235"
+      - 'windows.java17.openjdk.64bit'
+    os: 'windows'
+    arch: 'amd64'
+    vendor: 'temurin'
+    version: 'jdk-17.0.19+10'
+    sha256: 'b5b235c48adf6a081874b812c630b9f4b5f637b7a5ed18b9174d08a41ec4c235'
   - params:
-      - "macos.java17.openjdk.64bit"
-    os: "macos"
-    arch: "amd64"
-    vendor: "temurin"
-    version: "jdk-17.0.19+10"
-    sha256: "03632d1fbf139ab3719a9f4b47dc206251449b87557143c822336dbf8c06560f"
+      - 'macos.java17.openjdk.64bit'
+    os: 'macos'
+    arch: 'amd64'
+    vendor: 'temurin'
+    version: 'jdk-17.0.20+8'
+    sha256: '3710c3131c5d7c090582b357f1310133a90bf701183d065223f1a0b90b9ed5ae'
   - params:
-      - "macos.java17.openjdk.aarch64"
-    os: "macos"
-    arch: "aarch64"
-    vendor: "temurin"
-    version: "jdk-17.0.19+10"
-    sha256: "8fa1eff40bb637a33613b2ccb8b12c70dc3661cc22cf8e784943715769a05336"
+      - 'macos.java17.openjdk.aarch64'
+    os: 'macos'
+    arch: 'aarch64'
+    vendor: 'temurin'
+    version: 'jdk-17.0.19+10'
+    sha256: '8fa1eff40bb637a33613b2ccb8b12c70dc3661cc22cf8e784943715769a05336'
