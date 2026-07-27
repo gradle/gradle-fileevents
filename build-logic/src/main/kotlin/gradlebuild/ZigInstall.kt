@@ -44,43 +44,112 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
 
     @TaskAction
     fun execute() {
+        // installDir will route to "\gradle-fileevents\build\zig-install\unpack"
         val installDir = this.installDir.get().asFile
+        var installedVersion = ""
+        // gets the full executable file path
+        val execFile = this.installDir.asFile.get().zigExecutablePath(zigVersion.get())
+
         try {
             val outputStream = ByteArrayOutputStream()
             val result = exec.exec {
-                commandLine = listOf("zig", "version")
+                commandLine = listOf(execFile.path, "version")
                 standardOutput = outputStream
                 isIgnoreExitValue = true
             }
             if (result.exitValue == 0) {
-                val installedVersion = outputStream.toString().trim()
-                println("Found Zig ${installedVersion}")
-                if (installedVersion == zigVersion.get()) {
+                installedVersion = outputStream.toString().trim()
+                println("Found Zig version : ${installedVersion}")
+                if (installedVersion != zigVersion.get()) {
+                    // if version mismatch delete the unnecessary installations.
                     installDir.deleteRecursively()
                     return
                 }
             }
         } catch (e: Exception) {
-            println("Zig not found on path")
+            println("Error: Zig ${zigVersion.get()} was not found at ${installDir}.")
+            println("Exception Cause : ${e.message}")
+            println("Going to attempt to install ZigLang. \n")
         }
 
         // Install Zig
-        println("Installing Zig ${zigVersion.get()} for ${os()} ${arch()}")
+        if (installedVersion.isNullOrEmpty()){
+            println("Installing Zig ${zigVersion.get()} for ${os()} ${arch()}.")
+        }
+
         val cacheRoot = cacheDir.get().asFile
         cacheRoot.mkdirs()
-        val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.tar.xz")
-        val baseUrl = "https://repo.gradle.org/artifactory/ziglang/" // https://ziglang.org/
-        // TODO Figure out OS and architecture
-        if (zigVersion.get().contains('-')) {
-          downloadFile("${baseUrl}builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
-        } else {
-          downloadFile("${baseUrl}download/${zigVersion.get()}/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+
+        // Set Remote Repository Url
+        val baseUrl = "https://ziglang.org/" // https://ziglang.org/
+        var zigArchive: File
+        var zigExtracted: File
+
+        // Check for windows
+        if (os() == "windows"){
+            zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.zip")
+            if (!zigArchive.exists()){
+                println("Downloading Zig Zip File To: " + cacheRoot.path)
+
+                if (zigVersion.get().contains('-')) {
+                    // TODO for dev builds
+                    downloadFile("${baseUrl}builds/${zigName(zigVersion.get())}.zip", zigArchive)
+                } else {
+                    downloadFile("${baseUrl}download/${zigVersion.get()}/${zigName(zigVersion.get())}.zip", zigArchive)
+                }
+            }
+            // Check to see if the zip file has already been extracted
+            try {
+                zigExtracted = installDir.resolve(installDir.absolutePath + "\\" + zigName(zigVersion.get()))
+
+                if ( !zigExtracted.exists() ){
+                    println("Extracting Zip To: " + zigExtracted.path)
+                    // Compatible until 9.5.x. Doesn't work in 9.6.x but will work in 9.7+ until 10
+                    //unzipTo(installDir, zigArchive)
+                    // Public API replacement using the Project instance: compatible with all versions
+                    project.copy {
+                        from(project.zipTree(zigArchive))
+                        into(installDir)
+                    }
+                } else {
+                    println("Extracted files already exist. Skipped Un-ziping archive.")
+                }
+            } catch (e : Exception){
+                println("Error : ZigInstall.kt failed to unzip the downloaded zip file." + "\n" + e.toString())
+            }
+            println("ExecutablePath : " + installDir.zigExecutablePath(zigVersion.get()))
         }
-        unpackTarXz(zigArchive, installDir)
+        // Check for Linux
+        if (os() == "linux" || os() == "macos"){
+            zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.tar.xz")
+            if (!zigArchive.exists()){
+                if (zigVersion.get().contains('-')) {
+                    downloadFile("${baseUrl}builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+                } else {
+                    downloadFile("${baseUrl}download/${zigVersion.get()}/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+                }
+            }
+            // Check to see if the zip file has already been extracted
+            try {
+                zigExtracted = installDir.resolve(installDir.absolutePath + zigArchive.absolutePath)
+
+                if ( !zigExtracted.exists() ){
+                    unpackTarXz(zigArchive, installDir)
+                    println("Extracting Zip To: " + zigExtracted.path)
+                }
+                else {
+                    println("Extracted files already exist. Skipped Un-taring tar file.")
+                }
+            }  catch (e : Exception){
+                println("Error: ZigInstall.kt failed to untar the downloaded tar file." + "\n" + e.toString())
+            }
+        }
+        // get zig executable file path
         val executable = installDir.zigExecutablePath(zigVersion.get())
         executable.setExecutable(true, false)
     }
 
+    // Downloads the file
     fun downloadFile(url: String, destination: File) {
         URI(url).toURL().openStream().use { input ->
             FileOutputStream(destination).use { output ->
@@ -89,6 +158,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         }
     }
 
+    // Unpacks the Tar.Xz file for linux and macOS
     fun unpackTarXz(file: File, outputDir: File) {
         XZCompressorInputStream(BufferedInputStream(FileInputStream(file))).use { xzIn ->
             TarArchiveInputStream(xzIn).use { tarIn ->
@@ -109,12 +179,32 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         }
     }
 
-    private fun File.zigExecutablePath(version: String): File =
-        resolve("${zigName(version)}/zig")
+    // Gets the executable file path value
+    private fun File.zigExecutablePath(version: String): File {
+        // On Windows, Need to return  with the extension otherwise it won't run.
+        if (os() == "windows"){
+            //return resolve("${zigName(version)}" + "/zig.exe")
+            return resolve("${zigName(version)}/zig.exe")
+        }
+        return resolve("${zigName(version)}/zig")
+    }
 
-    private fun zigName(zigVersion: String) =
-        "zig-${arch()}-${os()}-${zigVersion}"
+    // Sets the name scheme for the archive name to download from remote repository
+    private fun zigName(zigVersion: String): String {
+        var list = zigVersion.split(".", ignoreCase = true)
+        var versionString = list[1]
+        var version = versionString.toInt()
 
+        // The older versions name scheme have the OS before the Architecture
+        // https://ziglang.org/download/0.8.1/zig-windows-x86_64-0.8.1.zip
+        // https://ziglang.org/download/0.15.1/zig-x86_64-windows-0.15.1
+        if (version < 14){
+            return "zig-${os()}-${arch()}-${zigVersion}"
+        }
+        return "zig-${arch()}-${os()}-${zigVersion}"
+    }
+
+    // Identifies the Operating System
     private fun os(): String {
         val os = System.getProperty("os.name").lowercase()
         return when {
@@ -125,6 +215,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         }
     }
 
+    // Identifies the System Architecture
     private fun arch(): String {
         val arch = System.getProperty("os.arch").lowercase()
         return when {
