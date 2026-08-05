@@ -81,7 +81,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         cacheRoot.mkdirs()
 
         // Set Remote Repository Url
-        val baseUrl = "https://ziglang.org/" // https://ziglang.org/
+        val baseUrl = "https://repo.gradle.org/ui/native/ziglang/" // https://ziglang.org/
         var zigArchive: File
         var zigExtracted: File
 
@@ -195,9 +195,11 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         var versionString = list[1]
         var version = versionString.toInt()
 
-        // The older versions name scheme have the OS before the Architecture
+        // The older versions (0.14.0) name scheme have the OS before the Architecture
         // https://ziglang.org/download/0.8.1/zig-windows-x86_64-0.8.1.zip
         // https://ziglang.org/download/0.15.1/zig-x86_64-windows-0.15.1
+        // https://repo.gradle.org/artifactory/ziglang/download/zig-x86-windows-0.15.1.zip
+        // https://repo.gradle.org/artifactory/ziglang/download/zig-windows-x86-0.13.0.zip
         if (version < 14){
             return "zig-${os()}-${arch()}-${zigVersion}"
         }
