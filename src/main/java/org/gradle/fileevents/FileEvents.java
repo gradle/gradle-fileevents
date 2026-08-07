@@ -47,9 +47,11 @@ public class FileEvents {
             }
             Platform platform = Platform.current();
             String platformName = getPlatformName(platform);
+            String libraryName = determineLibraryName(platform);
+            checkPlatformVersionIsSupported(platform);
             try {
                 NativeLibraryLocator loader = new NativeLibraryLocator(extractDir, FileEventsVersion.VERSION);
-                File library = loader.find(new LibraryDef(determineLibraryName(platform), platformName));
+                File library = loader.find(new LibraryDef(libraryName, platformName));
                 if (library == null) {
                     throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
                 }
@@ -94,6 +96,44 @@ public class FileEvents {
                 return "aarch64-macos";
             default:
                 throw new NativeIntegrationUnavailableException(String.format("Native file events integration is not available for %s.", platform));
+        }
+    }
+
+    private static void checkPlatformVersionIsSupported(Platform platform) {
+        if (!platform.isWindows()) {
+            return;
+        }
+        String osName = System.getProperty("os.name", "");
+        String osVersion = System.getProperty("os.version", "");
+        if (!isWindowsVersionSupported(osName, osVersion)) {
+            throw new NativeIntegrationUnavailableException(
+                String.format("Native file events integration is not available for %s %s. It requires at least Windows 10 or Windows Server 2019.", osName, osVersion)
+            );
+        }
+    }
+
+    /**
+     * The native library targets the Windows 10 1709 API ({@code NTDDI_VERSION} in {@code build.zig})
+     * and fails to load on older versions. Windows Server 2016 reports version 10.0 but is based on
+     * the older 1607 build, so it is excluded by name.
+     * See <a href="https://github.com/gradle/gradle/issues/31939">gradle/gradle#31939</a>.
+     */
+    static boolean isWindowsVersionSupported(String osName, String osVersion) {
+        if (osName.contains("Server 2016")) {
+            return false;
+        }
+        int majorVersion = parseMajorVersion(osVersion);
+        return majorVersion < 0 || majorVersion >= 10;
+    }
+
+    private static int parseMajorVersion(String version) {
+        int end = version.indexOf('.');
+        String major = end == -1 ? version : version.substring(0, end);
+        try {
+            return Integer.parseInt(major.trim());
+        } catch (NumberFormatException e) {
+            // Unknown format, assume it's a recent version
+            return -1;
         }
     }
 
