@@ -32,6 +32,7 @@ pub fn build(b: *std.Build) void {
 
     const cpp_args = if (target.result.os.tag == .windows)
         base_cpp_args ++ &[_][]const u8{
+            // Keep in sync with FileEvents.isWindowsVersionSupported()
             "-DNTDDI_VERSION=NTDDI_WIN10_RS3",
             // Need this to actually get our functions in the export table
             "-DJNIEXPORT=__declspec(dllexport)",
