@@ -4,7 +4,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -21,7 +23,11 @@ import java.io.FileOutputStream
 import java.net.URI
 import javax.inject.Inject
 
-abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) : DefaultTask() {
+abstract class ZigInstall @Inject constructor(
+        @Inject val exec: ExecOperations,
+        @Inject val fs: FileSystemOperations,
+        @Inject val archives: ArchiveOperations,
+    ) : DefaultTask() {
     @get:Input
     abstract val zigVersion: Property<String>
 
@@ -68,18 +74,32 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
         println("Installing Zig ${zigVersion.get()} for ${os()} ${arch()}")
         val cacheRoot = cacheDir.get().asFile
         cacheRoot.mkdirs()
-        val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.tar.xz")
+        val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.$archiveExtension")
         val baseUrl = "https://repo.gradle.org/artifactory/ziglang/" // https://ziglang.org/
         // TODO Figure out OS and architecture
         if (zigVersion.get().contains('-')) {
-          downloadFile("${baseUrl}builds/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+          downloadFile("${baseUrl}builds/${zigArchive.name}", zigArchive)
         } else {
-          downloadFile("${baseUrl}download/${zigVersion.get()}/${zigName(zigVersion.get())}.tar.xz", zigArchive)
+          downloadFile("${baseUrl}download/${zigVersion.get()}/${zigArchive.name}", zigArchive)
         }
-        unpackTarXz(zigArchive, installDir)
+        unpack(zigArchive, installDir)
         val executable = installDir.zigExecutablePath(zigVersion.get())
         executable.setExecutable(true, false)
     }
+
+    private val archiveExtension: String
+            get() = if (os() == "windows") "zip" else "tar.xz"
+
+        private fun unpack(archive: File, outputDir: File) {
+                if (os() == "windows") {
+                        fs.copy {
+                                from(archives.zipTree(archive))
+                                into(outputDir)
+                            }
+                    } else {
+                        unpackTarXz(archive, outputDir)
+                    }
+            }
 
     fun downloadFile(url: String, destination: File) {
         URI(url).toURL().openStream().use { input ->
@@ -110,7 +130,7 @@ abstract class ZigInstall @Inject constructor(@Inject val exec: ExecOperations) 
     }
 
     private fun File.zigExecutablePath(version: String): File =
-        resolve("${zigName(version)}/zig")
+        resolve("${zigName(version)}/${if (os() == "windows") "zig.exe" else "zig"}")
 
     private fun zigName(zigVersion: String) =
         "zig-${arch()}-${os()}-${zigVersion}"
