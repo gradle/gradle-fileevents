@@ -76,7 +76,6 @@ abstract class ZigInstall @Inject constructor(
         cacheRoot.mkdirs()
         val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.$archiveExtension")
         val baseUrl = "https://repo.gradle.org/artifactory/ziglang/" // https://ziglang.org/
-        // TODO Figure out OS and architecture
         if (zigVersion.get().contains('-')) {
           downloadFile("${baseUrl}builds/${zigArchive.name}", zigArchive)
         } else {
