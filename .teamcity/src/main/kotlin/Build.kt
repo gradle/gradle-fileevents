@@ -26,6 +26,7 @@ class Build : BaseBuildType({
     """.trimIndent()
 
     params {
+        param("env.PGP_SIGNING_KEY_ID", "%pgpSigningKeyId%")
         param("env.PGP_SIGNING_KEY", "%pgpSigningKey%")
         param("env.PGP_SIGNING_KEY_PASSPHRASE", "%pgpSigningPassphrase%")
 
