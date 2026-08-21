@@ -209,6 +209,8 @@ publishing {
 
 signing {
     useInMemoryPgpKeys(
+        // Key ID required when signing with a subkey
+        System.getenv("PGP_SIGNING_KEY_ID"),
         System.getenv("PGP_SIGNING_KEY"),
         System.getenv("PGP_SIGNING_KEY_PASSPHRASE")
     )
