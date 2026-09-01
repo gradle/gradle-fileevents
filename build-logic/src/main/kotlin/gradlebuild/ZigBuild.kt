@@ -51,8 +51,19 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sources: ConfigurableFileCollection
 
+    /**
+     * Names the platform, and therefore the directory the library is packaged into. Must keep
+     * matching the strings `FileEvents.getPlatformName()` looks the library up by.
+     */
     @get:Input
     abstract val target: Property<String>
+
+    /**
+     * The target triple passed to `zig build -Dtarget=`. Defaults to [target]; set it separately to
+     * pin an ABI floor, e.g. `x86_64-linux-gnu.2.17`, without renaming the packaging directory.
+     */
+    @get:Input
+    abstract val zigTarget: Property<String>
 
     @get:Optional
     @get:Input
@@ -77,8 +88,8 @@ abstract class ZigBuild @Inject constructor(@Inject val exec: ExecOperations) : 
             headers.forEach { headerDir ->
                 args("--search-prefix", headerDir.absolutePath)
             }
-            if (target.isPresent) {
-                args("-Dtarget=${target.get()}")
+            if (zigTarget.isPresent) {
+                args("-Dtarget=${zigTarget.get()}")
             }
             if (libcFile.isPresent) {
                 args("--libc", libcFile.get().asFile.absolutePath)

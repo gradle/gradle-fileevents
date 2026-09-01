@@ -4,19 +4,24 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib = b.addSharedLibrary(.{ .name = "gradle-fileevents", .target = target, .optimize = optimize });
-
-    const env = std.process.getEnvMap(b.allocator) catch unreachable;
-    const java_home = env.get("JAVA_HOME") orelse unreachable;
+    const java_home = b.graph.environ_map.get("JAVA_HOME") orelse @panic("JAVA_HOME is not set");
     const java_include_path = std.fmt.allocPrint(b.allocator, "{s}/include", .{java_home}) catch unreachable;
     const java_darwin_include_path = std.fmt.allocPrint(b.allocator, "{s}/include/darwin", .{java_home}) catch unreachable;
 
+    const module = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        // Link against libc and libstdc++
+        .link_libc = true,
+        .link_libcpp = true,
+    });
+
     // Add include directories
-    lib.addIncludePath(b.path("build/generated/sources/headers/java"));
-    lib.addIncludePath(b.path("build/generated/sources/headers/version"));
-    lib.addIncludePath(b.path("src/main/headers"));
-    lib.addSystemIncludePath(.{ .cwd_relative = java_include_path });
-    lib.addSystemIncludePath(.{ .cwd_relative = java_darwin_include_path });
+    module.addIncludePath(b.path("build/generated/sources/headers/java"));
+    module.addIncludePath(b.path("build/generated/sources/headers/version"));
+    module.addIncludePath(b.path("src/main/headers"));
+    module.addSystemIncludePath(.{ .cwd_relative = java_include_path });
+    module.addSystemIncludePath(.{ .cwd_relative = java_darwin_include_path });
 
     const base_cpp_args = &[_][]const u8{
         "--std=c++17",
@@ -28,6 +33,10 @@ pub fn build(b: *std.Build) void {
         "-Werror",
         "-Wno-format-nonliteral",
         "-Wno-unguarded-availability-new",
+        // `std::wstring_convert` is deprecated in C++17 without a standard replacement, and the
+        // in-source pragma in jni_support.cpp doesn't cover the warning libc++ raises from inside
+        // its own headers while instantiating the template.
+        "-Wno-deprecated-declarations",
     };
 
     const cpp_args = if (target.result.os.tag == .windows)
@@ -40,7 +49,7 @@ pub fn build(b: *std.Build) void {
         base_cpp_args;
 
     // Add source files
-    lib.addCSourceFiles(.{
+    module.addCSourceFiles(.{
         .files = &.{
             "src/main/cpp/apple_fsnotifier.cpp",
             "src/main/cpp/fileevents_version.cpp",
@@ -54,15 +63,17 @@ pub fn build(b: *std.Build) void {
         .flags = cpp_args,
     });
 
-    // Link against libc and libstdc++
-    lib.linkLibC();
-    lib.linkLibCpp();
-
     if (target.result.os.tag == .macos) {
-        lib.linkFramework("CoreFoundation");
-        lib.linkFramework("CoreServices");
-        lib.addSystemFrameworkPath(.{ .cwd_relative = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks" });
+        module.linkFramework("CoreFoundation", .{});
+        module.linkFramework("CoreServices", .{});
+        module.addSystemFrameworkPath(.{ .cwd_relative = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks" });
     }
+
+    const lib = b.addLibrary(.{
+        .name = "gradle-fileevents",
+        .linkage = .dynamic,
+        .root_module = module,
+    });
 
     // lib.verbose_cc = true;
     // lib.verbose_link = true;

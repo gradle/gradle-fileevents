@@ -101,11 +101,14 @@ sourceSets {
 }
 
 zig {
-    zigVersion = "0.14.1"
+    zigVersion = "0.16.0"
     outputDir = layout.buildDirectory.dir("zig")
     targets {
-        create("x86_64-linux-gnu")
-        create("aarch64-linux-gnu")
+        // Pin the glibc ABI floor. Left unpinned, Zig links against the newest glibc it bundles
+        // stubs for, which moved to 2.30 in Zig 0.16 and made the library unloadable on
+        // RHEL/CentOS 7-8, Debian 10, Ubuntu 18.04 and Amazon Linux 2.
+        create("x86_64-linux-gnu") { zigTarget = "x86_64-linux-gnu.2.17" }
+        create("aarch64-linux-gnu") { zigTarget = "aarch64-linux-gnu.2.17" }
         create("x86_64-linux-musl")
         create("aarch64-linux-musl")
         create("x86_64-windows-gnu")
