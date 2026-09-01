@@ -3,6 +3,11 @@ import gradlebuild.ZigInstall
 import java.util.*
 
 interface TargetPlatform : Named {
+    /**
+     * The triple to pass to Zig, when it needs to differ from the target's name. Use it to pin a
+     * libc ABI floor, e.g. name `x86_64-linux-gnu` with `zigTarget = "x86_64-linux-gnu.2.17"`.
+     */
+    val zigTarget: Property<String>
     val headers: ConfigurableFileCollection
     val sources: ConfigurableFileCollection
     val libcFile: RegularFileProperty
@@ -56,6 +61,7 @@ afterEvaluate {
             if (target.name != "native") {
                 this.target = target.name
             }
+            this.zigTarget = target.zigTarget.orElse(this.target)
             headers.from(target.headers)
             sources.from(target.sources)
             libcFile = target.libcFile
