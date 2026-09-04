@@ -81,12 +81,7 @@ void convertToLongPathIfNeeded(wstring& path) {
 // Allocate maximum path length
 #define PATH_BUFFER_SIZE 32768
 
-/**
- * Resolves the final path of the directory the handle points to.
- *
- * @return ERROR_SUCCESS when the path was resolved, or the error code explaining why it wasn't.
- */
-DWORD resolveFinalPath(HANDLE handle, wstring& path) {
+bool resolveFinalPath(HANDLE handle, wstring& path) {
     vector<wchar_t> buffer;
     buffer.reserve(PATH_BUFFER_SIZE);
     DWORD pathLength = GetFinalPathNameByHandleW(
@@ -94,22 +89,13 @@ DWORD resolveFinalPath(HANDLE handle, wstring& path) {
         &buffer[0],
         PATH_BUFFER_SIZE,
         FILE_NAME_OPENED);
-    if (pathLength == 0) {
-        DWORD error = GetLastError();
-        // Once the watched directory or one of its ancestors is removed, its path can no longer be
-        // resolved. Callers treat that as the watch point having been deleted, so it's not worth a warning.
-        bool pathIsGone = error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND;
-        logToJava(pathIsGone ? LogLevel::DEBUG_LEVEL : LogLevel::WARN_LEVEL,
-            "Couldn't get final path for handle 0x%x, error code: %d", handle, error);
-        return error;
-    }
-    if (pathLength > PATH_BUFFER_SIZE) {
-        logToJava(LogLevel::WARN_LEVEL, "Couldn't get final path for handle 0x%x, path is %d characters long", handle, pathLength);
-        return ERROR_BUFFER_OVERFLOW;
+    if (pathLength == 0 || pathLength > PATH_BUFFER_SIZE) {
+        logToJava(LogLevel::WARN_LEVEL, "Couldn't get final path for handle 0x%x, error code: %d", handle, GetLastError());
+        return false;
     }
     path.clear();
     path.insert(0, &buffer[0], pathLength);
-    return ERROR_SUCCESS;
+    return true;
 }
 
 //
@@ -135,9 +121,9 @@ WatchPoint::WatchPoint(Server* server, size_t eventBufferSize, const wstring& pa
         throw FileWatcherException("Couldn't add watch", wideToUtf16String(path), GetLastError());
     }
     this->directoryHandle = directoryHandle;
-    DWORD finalPathError = resolveFinalPath(directoryHandle, registeredFinalPath);
-    if (finalPathError != ERROR_SUCCESS) {
-        throw FileWatcherException("Couldn't resolve final path of", wideToUtf16String(path), finalPathError);
+    bool directoryHandleIsAccessible = resolveFinalPath(directoryHandle, registeredFinalPath);
+    if (!directoryHandleIsAccessible) {
+        throw FileWatcherException("Couldn't resolve final path of", wideToUtf16String(path), GetLastError());
     }
     this->eventBuffer.reserve(eventBufferSize);
     ZeroMemory(&this->overlapped, sizeof(OVERLAPPED));
@@ -268,7 +254,7 @@ void Server::handleEvents(WatchPoint* watchPoint, DWORD errorCode, const vector<
         }
 
         wstring currentFinalPath;
-        bool watchedHandleIsAccessible = resolveFinalPath(watchPoint->directoryHandle, currentFinalPath) == ERROR_SUCCESS;
+        bool watchedHandleIsAccessible = resolveFinalPath(watchPoint->directoryHandle, currentFinalPath);
         if (!watchedHandleIsAccessible || currentFinalPath != watchPoint->registeredFinalPath) {
             // The handle has become invalid or missing, or the directory has been relocated, consider this as if the the watch point was deleted
             reportWatchPointDeleted(watchPoint);
@@ -486,7 +472,7 @@ void Server::stopWatchingMovedPaths(jobject droppedPaths) {
             continue;
         }
         wstring currentFinalPath;
-        bool watchedHandleIsAccessible = resolveFinalPath(watchPoint.directoryHandle, currentFinalPath) == ERROR_SUCCESS;
+        bool watchedHandleIsAccessible = resolveFinalPath(watchPoint.directoryHandle, currentFinalPath);
         if (!watchedHandleIsAccessible || watchPoint.registeredFinalPath != currentFinalPath) {
             jstring javaPath = env->NewString((jchar*) wideToUtf16String(watchPoint.registeredPath).c_str(), (jsize) watchPoint.registeredPath.length());
             env->CallBooleanMethod(droppedPaths, listAddMethod, javaPath);
