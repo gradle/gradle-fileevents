@@ -1,6 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
 import gradlebuild.ZigBuild
+import org.gradle.api.credentials.HttpHeaderCredentials
+import org.gradle.authentication.http.HttpHeaderAuthentication
 import org.gradle.util.internal.VersionNumber
 
 plugins {
@@ -160,15 +162,17 @@ publishing {
     repositories {
         maven {
             val artifactoryUrl = providers.environmentVariable("GRADLE_INTERNAL_REPO_URL").orNull
-            val artifactoryUsername = providers.environmentVariable("ORG_GRADLE_PROJECT_publishUserName").orNull
-            val artifactoryPassword = providers.environmentVariable("ORG_GRADLE_PROJECT_publishApiKey").orNull
+            val artifactoryToken = providers.environmentVariable("ORG_GRADLE_PROJECT_publishToken").orNull
 
             name = "remote"
             val libsType = if (snapshot) "snapshots" else "releases"
             url = uri("${artifactoryUrl}/libs-${libsType}-local")
-            credentials {
-                username = artifactoryUsername
-                password = artifactoryPassword
+            credentials(HttpHeaderCredentials::class) {
+                name = "Authorization"
+                value = "Bearer $artifactoryToken"
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
             }
         }
     }
