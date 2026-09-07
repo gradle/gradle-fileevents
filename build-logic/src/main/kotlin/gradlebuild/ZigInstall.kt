@@ -24,10 +24,10 @@ import java.net.URI
 import javax.inject.Inject
 
 abstract class ZigInstall @Inject constructor(
-        @Inject val exec: ExecOperations,
-        @Inject val fs: FileSystemOperations,
-        @Inject val archives: ArchiveOperations,
-    ) : DefaultTask() {
+    @Inject val exec: ExecOperations,
+    @Inject val fs: FileSystemOperations,
+    @Inject val archives: ArchiveOperations,
+) : DefaultTask() {
     @get:Input
     abstract val zigVersion: Property<String>
 
@@ -77,9 +77,9 @@ abstract class ZigInstall @Inject constructor(
         val zigArchive = cacheRoot.resolve("${zigName(zigVersion.get())}.$archiveExtension")
         val baseUrl = "https://repo.gradle.org/artifactory/ziglang/" // https://ziglang.org/
         if (zigVersion.get().contains('-')) {
-          downloadFile("${baseUrl}builds/${zigArchive.name}", zigArchive)
+            downloadFile("${baseUrl}builds/${zigArchive.name}", zigArchive)
         } else {
-          downloadFile("${baseUrl}download/${zigVersion.get()}/${zigArchive.name}", zigArchive)
+            downloadFile("${baseUrl}download/${zigVersion.get()}/${zigArchive.name}", zigArchive)
         }
         unpack(zigArchive, installDir)
         val executable = installDir.zigExecutablePath(zigVersion.get())
@@ -87,18 +87,18 @@ abstract class ZigInstall @Inject constructor(
     }
 
     private val archiveExtension: String
-            get() = if (os() == "windows") "zip" else "tar.xz"
+        get() = if (os() == "windows") "zip" else "tar.xz"
 
-        private fun unpack(archive: File, outputDir: File) {
-                if (os() == "windows") {
-                        fs.copy {
-                                from(archives.zipTree(archive))
-                                into(outputDir)
-                            }
-                    } else {
-                        unpackTarXz(archive, outputDir)
-                    }
+    private fun unpack(archive: File, outputDir: File) {
+        if (os() == "windows") {
+            fs.copy {
+                from(archives.zipTree(archive))
+                into(outputDir)
             }
+        } else {
+            unpackTarXz(archive, outputDir)
+        }
+    }
 
     fun downloadFile(url: String, destination: File) {
         URI(url).toURL().openStream().use { input ->
