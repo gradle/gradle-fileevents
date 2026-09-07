@@ -31,7 +31,12 @@ class TestTrigger(
     triggers {
         vcs {
             branchFilter = """
-                +:*
+                +:<default>
+                +:gh-readonly-queue/*
+                +:devprod/*
+                -:dependabot/*
+                +pr: github_role=MEMBER
+                -pr: source=dependabot/*
             """.trimIndent()
 
             triggerRules = """
@@ -45,9 +50,8 @@ class TestTrigger(
         pullRequests {
             provider = github {
                 authType = vcsRoot()
-                filterTargetBranch = "main"
-                filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER_OR_COLLABORATOR
-                ignoreDrafts = true
+                filterAuthorRole = PullRequests.GitHubRoleFilter.EVERYBODY
+                ignoreDrafts = false
             }
         }
     }
