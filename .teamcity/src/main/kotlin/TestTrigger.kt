@@ -16,8 +16,6 @@
 
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.FailureAction
-import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
-import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 
@@ -43,16 +41,6 @@ class TestTrigger(
                 +:.
             """.trimIndent()
             quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
-        }
-    }
-
-    features {
-        pullRequests {
-            provider = github {
-                authType = vcsRoot()
-                filterAuthorRole = PullRequests.GitHubRoleFilter.EVERYBODY
-                ignoreDrafts = false
-            }
         }
     }
 

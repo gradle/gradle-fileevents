@@ -17,8 +17,10 @@
 import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.CheckoutMode
 import jetbrains.buildServer.configs.kotlin.DslContext
+import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 import jetbrains.buildServer.configs.kotlin.buildFeatures.freeDiskSpace
+import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 
 open class BaseBuildType(
     val init: BuildType.() -> Unit,
@@ -41,6 +43,15 @@ open class BaseBuildType(
                 authType = personalToken {
                     token = "%github.bot-teamcity.token%"
                 }
+            }
+        }
+
+        pullRequests {
+            vcsRootExtId = DslContext.settingsRoot.id?.value
+            provider = github {
+                authType = vcsRoot()
+                filterAuthorRole = PullRequests.GitHubRoleFilter.EVERYBODY
+                ignoreDrafts = false
             }
         }
 
