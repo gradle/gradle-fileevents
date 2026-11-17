@@ -23,10 +23,6 @@ import jetbrains.buildServer.configs.kotlin.buildFeatures.freeDiskSpace
 open class BaseBuildType(
     val init: BuildType.() -> Unit,
 ): BuildType({
-    params {
-        param("env.DEVELOCITY_ACCESS_KEY", "%ge.gradle.org.access.key%")
-    }
-
     vcs {
         root(DslContext.settingsRoot)
         checkoutMode = CheckoutMode.ON_AGENT
