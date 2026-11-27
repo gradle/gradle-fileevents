@@ -10,7 +10,7 @@ permissions: {}
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
     permissions:
       contents: read
 
@@ -45,7 +45,6 @@ jobs:
           - ubuntu-22.04
           - ubuntu-latest
           - ubuntu-24.04-arm
-          - macos-14
           - macos-15
           - macos-latest
           - windows-2022
